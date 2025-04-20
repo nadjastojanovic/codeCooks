@@ -25,7 +25,7 @@ export default function AddRecipeModal({ onClose }) {
     ingredients: "",
     steps: "",
     image_url: "",
-    tags: [],
+    tags: [], // gonna insert this via recipe_tags table not recipes
   });
 
   // check if they've filled out all the required fields (everything above EXCEPT description or tags)
