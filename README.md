@@ -1,6 +1,8 @@
 # CSE264 Final Project: Full Stack
 ## Due: Friday, May 2, 2025 at 11:59 PM
-## Add your full name and Lehigh email address to this README!
+
+## Trevor Lachman, tal225@lehigh.edu
+## Nada Stojanovic, nas225@lehigh.edu
 
 
 This repo contains the boilerplate code for a full stack application using Express and React.  If you need a database table, please let your instructor know.
