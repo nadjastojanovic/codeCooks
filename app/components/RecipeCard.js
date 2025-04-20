@@ -6,6 +6,7 @@ import {
   CardContent,
   Typography,
   Button,
+  Chip
 } from "@mui/material";
 
 export default function RecipeCard({ recipe, onToggleFavorite }) {
@@ -18,7 +19,7 @@ export default function RecipeCard({ recipe, onToggleFavorite }) {
         <CardMedia
           component="img"
           height="140"
-          image={recipe.imageUrl}
+          image={recipe.image_url}
           alt={recipe.title}
         />
         <CardContent>
@@ -27,6 +28,26 @@ export default function RecipeCard({ recipe, onToggleFavorite }) {
           </Typography>
         </CardContent>
       </Link>
+
+      <div>
+        {recipe.tags && recipe.tags.length > 0 && ( // display this recipe's tags
+          <div className="flex space-x-2">
+            {recipe.tags.map((tag, index) => (
+              <Chip
+                key={index}
+                label={tag}
+                color="primary" // blue
+                style={{
+                  color: "white",
+                  fontWeight: "bold",
+                  margin: "0 -5px 0 15px",
+                  padding: "6px 12px",
+                }}
+              />
+            ))}
+          </div>
+        )}
+      </div>
 
       <Button
         variant="outlined"

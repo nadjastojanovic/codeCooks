@@ -1,46 +1,30 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
 import Navbar from "../../components/Navbar";
 import RecipeCard from "../../components/RecipeCard";
 import TagFilter from "../../components/TagFilter";
 
 export default function Home() {
-  const [selectedTag, setSelectedTag] = useState("All");
+  const [recipes, setRecipes] = useState([]);
+  const [selectedTag, setSelectedTag] = useState("All"); // by default, show all recipes
 
-  const [recipes, setRecipes] = useState([
-    {
-      id: 1,
-      title: "Spaghetti",
-      imageUrl: "/spaghetti.jpg",
-      isFavorited: false,
-      tag: "Dinner",
-    },
-    {
-      id: 2,
-      title: "Chocolate Cake",
-      imageUrl: "/cake.jpg",
-      isFavorited: true,
-      tag: "Dessert",
-    },
-    {
-      id: 3,
-      title: "Chicken Tikka",
-      imageUrl: "/tikka.jpg",
-      isFavorited: false,
-      tag: "Dinner",
-    },
-  ]);
-
-  const toggleFavorite = (id) => {
-    setRecipes((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, isFavorited: !r.isFavorited } : r))
-    );
+  const fetchRecipes = async () => {
+    try {
+      const tagParam = selectedTag !== "All" ? `?tag=${selectedTag}` : ""; // use all by default or whatever they selected
+      const response = await fetch(`/api/recipes${tagParam}`); // route
+      const data = await response.json();
+      setRecipes(data);
+    } catch (err) {
+      console.error("Failed to fetch recipes", err);
+    }
   };
 
-  const filteredRecipes =
-    selectedTag === "All"
-      ? recipes
-      : recipes.filter((r) => r.tag === selectedTag);
+  useEffect(() => {
+    fetchRecipes();
+
+    console.log(recipes)
+  }, [selectedTag]); // update recipes in place when they select a new tag
 
   return (
     <>
@@ -55,11 +39,10 @@ export default function Home() {
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8 mt-8">
-            {filteredRecipes.map((recipe) => (
+            {recipes.map((recipe) => (
               <RecipeCard
                 key={recipe.id}
                 recipe={recipe}
-                onToggleFavorite={toggleFavorite}
               />
             ))}
           </div>

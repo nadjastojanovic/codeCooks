@@ -1,3 +1,5 @@
+@import "tailwindcss"; /* tailwind docs: https://tailwindcss.com/docs/installation/framework-guides/nextjs */
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
