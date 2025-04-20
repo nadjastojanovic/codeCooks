@@ -8,7 +8,7 @@ import {
   Button,
 } from "@mui/material";
 
-export default function RecipeCard({ recipe }) {
+export default function RecipeCard({ recipe, onToggleFavorite }) {
   return (
     <Card sx={{ maxWidth: 345 }}>
       <Link
@@ -27,10 +27,12 @@ export default function RecipeCard({ recipe }) {
           </Typography>
         </CardContent>
       </Link>
+
       <Button
         variant="outlined"
         color={recipe.isFavorited ? "error" : "inherit"}
         sx={{ m: 2 }}
+        onClick={() => onToggleFavorite(recipe.id)}
       >
         {recipe.isFavorited ? "♥ Unfavorite" : "♡ Favorite"}
       </Button>
