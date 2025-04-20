@@ -4,7 +4,6 @@
 ## Trevor Lachman, tal225@lehigh.edu
 ## Nada Stojanovic, nas225@lehigh.edu
 
-
 This repo contains the boilerplate code for a full stack application using Express and React.  If you need a database table, please let your instructor know.
 
 ### Project Requirements
