@@ -45,16 +45,24 @@ export default function Home() {
   return (
     <>
       <Navbar />
-      <main className="p-6">
-        <TagFilter selectedTag={selectedTag} setSelectedTag={setSelectedTag} />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
-          {filteredRecipes.map((recipe) => (
-            <RecipeCard
-              key={recipe.id}
-              recipe={recipe}
-              onToggleFavorite={toggleFavorite}
-            />
-          ))}
+      <main className="py-10 flex justify-center">
+        {/* <div className="bg-blue-500 text-white p-4">Tailwind works!</div> */}
+
+        <div className="w-full max-w-4xl px-4">
+          <TagFilter
+            selectedTag={selectedTag}
+            setSelectedTag={setSelectedTag}
+          />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8 mt-8">
+            {filteredRecipes.map((recipe) => (
+              <RecipeCard
+                key={recipe.id}
+                recipe={recipe}
+                onToggleFavorite={toggleFavorite}
+              />
+            ))}
+          </div>
         </div>
       </main>
     </>
