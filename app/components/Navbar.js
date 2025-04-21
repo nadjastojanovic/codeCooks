@@ -1,12 +1,13 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import AddRecipeModal from "./AddRecipeModal";
 import Link from "next/link";
-import { AppBar, Toolbar, Button, Typography, Box, Stack } from "@mui/material";
+import { AppBar, Toolbar, Button, Typography, Stack } from "@mui/material";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
+  const router = useRouter();
   const [showModal, setShowModal] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -20,12 +21,10 @@ export default function Navbar() {
     checkAuth();
   }, []);
 
-  const router = useRouter();
-
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
     setIsAuthenticated(false);
-    router.push("/"); // ✅ redirect to homepage
+    router.push("/");
   };
 
   return (
@@ -42,16 +41,18 @@ export default function Navbar() {
           </Typography>
           <Stack direction="row" spacing={2}>
             {isAuthenticated && (
-              <Button variant="contained" onClick={() => setShowModal(true)}>
-                Add Recipe
-              </Button>
+              <>
+                <Button variant="contained" onClick={() => setShowModal(true)}>
+                  Add Recipe
+                </Button>
+                <Button component={Link} href="/favorites">
+                  My Favorites
+                </Button>
+                <Button component={Link} href="/my-recipes">
+                  My Recipes
+                </Button>
+              </>
             )}
-            <Button component={Link} href="/favorites">
-              My Favorites
-            </Button>
-            <Button component={Link} href="/my-recipes">
-              My Recipes
-            </Button>
             {isAuthenticated ? (
               <Button onClick={handleLogout}>Log Out</Button>
             ) : (

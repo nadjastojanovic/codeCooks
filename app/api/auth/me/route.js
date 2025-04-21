@@ -3,9 +3,10 @@ import { verifyToken } from "@/app/lib/auth";
 import { query } from "@/app/db/postgres";
 
 export async function GET() {
-  const token = cookies().get("token")?.value;
-  const userData = verifyToken(token);
+  const cookieStore = await cookies(); // ⬅️ await cookies
+  const token = cookieStore.get("token")?.value;
 
+  const userData = verifyToken(token);
   if (!userData) {
     return Response.json({ user: null });
   }
