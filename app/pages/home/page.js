@@ -9,6 +9,7 @@ export default function Home() {
   const [recipes, setRecipes] = useState([]);
   const [selectedTag, setSelectedTag] = useState("All"); // by default, show all recipes
 
+  // function to load recipes, with optional filtering by tag
   const fetchRecipes = async () => {
     try {
       const tagParam = selectedTag !== "All" ? `?tag=${selectedTag}` : ""; // use all by default or whatever they selected
@@ -20,11 +21,33 @@ export default function Home() {
     }
   };
 
+  // update recipes in place when they select a new tag
   useEffect(() => {
     fetchRecipes();
-
     console.log(recipes);
-  }, [selectedTag]); // update recipes in place when they select a new tag
+  }, [selectedTag]);
+
+  // toggles the favorite state and sends it to the server
+  const toggleFavorite = async (recipeId, isFavorited) => {
+    try {
+      const res = await fetch("/api/favorites", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ recipeId, isFavorited: !isFavorited }),
+      });
+
+      if (res.ok) {
+        // flip the favorited state for this recipe
+        setRecipes((prev) =>
+          prev.map((r) =>
+            r.id === recipeId ? { ...r, isFavorited: !isFavorited } : r
+          )
+        );
+      }
+    } catch (err) {
+      console.error("Failed to toggle favorite", err);
+    }
+  };
 
   return (
     <>
@@ -40,7 +63,13 @@ export default function Home() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8 mt-8">
             {recipes.map((recipe) => (
-              <RecipeCard key={recipe.id} recipe={recipe} />
+              <RecipeCard
+                key={recipe.id}
+                recipe={recipe}
+                onToggleFavorite={(id) =>
+                  toggleFavorite(id, recipe.isFavorited)
+                }
+              />
             ))}
           </div>
         </div>
