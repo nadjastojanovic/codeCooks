@@ -1,12 +1,32 @@
 "use client";
-import { useState } from "react";
+
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import AddRecipeModal from "./AddRecipeModal";
 import Link from "next/link";
 import { AppBar, Toolbar, Button, Typography, Box, Stack } from "@mui/material";
 
 export default function Navbar() {
   const [showModal, setShowModal] = useState(false);
-  const isAuthenticated = true; // TODO: Replace with real auth logic
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const res = await fetch("/api/auth/me");
+      const data = await res.json();
+      setIsAuthenticated(!!data.user);
+    };
+
+    checkAuth();
+  }, []);
+
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    setIsAuthenticated(false);
+    router.push("/"); // ✅ redirect to homepage
+  };
 
   return (
     <>
@@ -33,11 +53,16 @@ export default function Navbar() {
               My Recipes
             </Button>
             {isAuthenticated ? (
-              <Button>Log Out</Button>
+              <Button onClick={handleLogout}>Log Out</Button>
             ) : (
-              <Button component={Link} href="/login">
-                Log In / Sign Up
-              </Button>
+              <>
+                <Button component={Link} href="/login">
+                  Log In
+                </Button>
+                <Button component={Link} href="/signup">
+                  Sign Up
+                </Button>
+              </>
             )}
           </Stack>
         </Toolbar>

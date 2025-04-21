@@ -3,9 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function LoginPage() {
+export default function SignupPage() {
   const router = useRouter();
-  const [formData, setFormData] = useState({ username: "", password: "" });
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: "",
+  });
   const [error, setError] = useState("");
 
   const handleChange = (e) => {
@@ -16,17 +20,17 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
 
-    const res = await fetch("/api/auth", {
+    const res = await fetch("/api/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(formData),
     });
 
     if (res.ok) {
-      router.push("/");
+      router.push("/login");
     } else {
       const data = await res.json();
-      setError(data.error || "Login failed");
+      setError(data.error || "Signup failed");
     }
   };
 
@@ -36,12 +40,23 @@ export default function LoginPage() {
         onSubmit={handleSubmit}
         className="bg-white p-6 rounded shadow max-w-sm w-full"
       >
-        <h1 className="text-xl font-bold mb-4">Login</h1>
+        <h1 className="text-xl font-bold mb-4">Sign Up</h1>
         <label className="block mb-2">
           Username
           <input
             name="username"
             value={formData.username}
+            onChange={handleChange}
+            required
+            className="w-full border px-3 py-2 mt-1 rounded"
+          />
+        </label>
+        <label className="block mb-2">
+          Email
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
             onChange={handleChange}
             required
             className="w-full border px-3 py-2 mt-1 rounded"
@@ -63,7 +78,7 @@ export default function LoginPage() {
           type="submit"
           className="w-full bg-green-500 text-white py-2 rounded"
         >
-          Log In
+          Sign Up
         </button>
       </form>
     </div>

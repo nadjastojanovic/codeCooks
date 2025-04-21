@@ -23,7 +23,7 @@ export default function Home() {
   useEffect(() => {
     fetchRecipes();
 
-    console.log(recipes)
+    console.log(recipes);
   }, [selectedTag]); // update recipes in place when they select a new tag
 
   return (
@@ -40,10 +40,7 @@ export default function Home() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8 mt-8">
             {recipes.map((recipe) => (
-              <RecipeCard
-                key={recipe.id}
-                recipe={recipe}
-              />
+              <RecipeCard key={recipe.id} recipe={recipe} />
             ))}
           </div>
         </div>
