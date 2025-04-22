@@ -6,10 +6,9 @@ import Link from "next/link";
 import { AppBar, Toolbar, Button, Typography, Stack } from "@mui/material";
 import { useRouter } from "next/navigation";
 
-export default function Navbar() {
+export default function Navbar({ isAuthenticated, setIsAuthenticated }) {
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const checkAuth = async () => {
     const res = await fetch("/api/auth/me");

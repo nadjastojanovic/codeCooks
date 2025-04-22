@@ -1,7 +1,8 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+
+import Navbar from "../../components/Navbar";
 import RecipeCard from "../../components/RecipeCard";
 
 export default function FavoritesPage() {
@@ -9,20 +10,17 @@ export default function FavoritesPage() {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const loadFavorites = async () => {
+    const res = await fetch("/api/favorites");
+
+    const data = await res.json();
+    console.log(data)
+
+    setRecipes(data);
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const loadFavorites = async () => {
-      const res = await fetch("/api/favorites");
-
-      if (res.status === 401) {
-        router.push("/");
-        return;
-      }
-
-      const data = await res.json();
-      setRecipes(data);
-      setLoading(false);
-    };
-
     loadFavorites();
   }, [router]);
 
@@ -42,17 +40,22 @@ export default function FavoritesPage() {
   }
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold mb-4">My Favorites</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        {recipes.map((r) => (
-          <RecipeCard
-            key={r.id}
-            recipe={{ ...r, isFavorited: true }}
-            onToggleFavorite={(id) => handleToggle(id, true)}
-          />
-        ))}
-      </div>
-    </div>
+    <>
+      <Navbar />
+      <main className="py-10 flex justify-center">
+        <div className="w-full max-w-4xl px-4">
+          <h1 className="text-2xl font-bold mb-4">My Favorites</h1>
+          <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-8 mt-8">
+            {recipes.map((recipe) => (
+              <RecipeCard
+                key={recipe.id}
+                recipe={{ ...recipe, isFavorited: true }}
+                onToggleFavorite={(id) => handleToggle(id, true)}
+              />
+            ))}
+          </div>
+        </div>
+      </main>
+    </>
   );
 }

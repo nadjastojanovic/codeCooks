@@ -9,9 +9,9 @@ import {
   Chip
 } from "@mui/material";
 
-export default function RecipeCard({ recipe, onToggleFavorite }) {
+export default function RecipeCard({ isAuthenticated, recipe, onToggleFavorite }) {
   return (
-    <Card sx={{ maxWidth: 345 }}>
+    <Card sx={{ maxWidth: 345, paddingBottom: 2 }}>
       <Link
         href={`/recipe/${recipe.id}`}
         style={{ textDecoration: "none", color: "inherit" }}
@@ -54,14 +54,17 @@ export default function RecipeCard({ recipe, onToggleFavorite }) {
         )}
       </div>
 
-      <Button
-        variant="outlined"
-        color={recipe.isFavorited ? "error" : "inherit"}
-        sx={{ m: 2 }}
-        onClick={() => onToggleFavorite(recipe.id)}
-      >
-        {recipe.isFavorited ? "♥ Unfavorite" : "♡ Favorite"}
-      </Button>
+      {isAuthenticated  && (
+        <Button
+          variant="outlined"
+          color={recipe.isFavorited ? "error" : "inherit"}
+          sx={{ m: 2 }}
+          onClick={() => onToggleFavorite(recipe.id)}
+        >
+          {recipe.isFavorited ? "♥ Unfavorite" : "♡ Favorite"}
+        </Button>
+      )}
+      
     </Card>
   );
 }
