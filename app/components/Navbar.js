@@ -1,12 +1,13 @@
 "use client";
-
+import { useAuth } from "../context/authContext";
 import { useEffect, useState } from "react";
 import AddRecipeModal from "./AddRecipeModal";
 import Link from "next/link";
 import { AppBar, Toolbar, Button, Typography, Stack } from "@mui/material";
 import { useRouter } from "next/navigation";
 
-export default function Navbar({ isAuthenticated, setIsAuthenticated }) {
+export default function Navbar() {
+  const { isAuthenticated, setIsAuthenticated } = useAuth();
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
 

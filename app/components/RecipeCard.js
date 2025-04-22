@@ -8,8 +8,11 @@ import {
   Button,
   Chip
 } from "@mui/material";
+import { useAuth } from "../context/authContext";
 
-export default function RecipeCard({ isAuthenticated, recipe, onToggleFavorite }) {
+export default function RecipeCard({recipe, onToggleFavorite}) {
+  const { isAuthenticated, setIsAuthenticated } = useAuth();
+
   return (
     <Card sx={{ maxWidth: 345, paddingBottom: 2 }}>
       <Link

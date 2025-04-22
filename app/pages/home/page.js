@@ -6,7 +6,6 @@ import RecipeCard from "../../components/RecipeCard";
 import TagFilter from "../../components/TagFilter";
 
 export default function Home() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [recipes, setRecipes] = useState([]);
   const [selectedTag, setSelectedTag] = useState("All"); // by default, show all recipes
 
@@ -17,6 +16,7 @@ export default function Home() {
       const response = await fetch(`/api/recipes${tagParam}`); // route
       const data = await response.json();
       setRecipes(data);
+      console.log(data)
     } catch (err) {
       console.error("Failed to fetch recipes", err);
     }
@@ -52,7 +52,7 @@ export default function Home() {
 
   return (
     <>
-      <Navbar isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated}/>
+      <Navbar/>
       <main className="py-10 flex justify-center">
         {/* <div className="bg-blue-500 text-white p-4">Tailwind works!</div> */}
 
@@ -65,7 +65,6 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-8 mt-8">
             {recipes.map((recipe) => (
               <RecipeCard
-                isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated}
                 key={recipe.id}
                 recipe={recipe}
                 onToggleFavorite={(id) =>
