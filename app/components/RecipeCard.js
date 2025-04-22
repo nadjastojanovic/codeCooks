@@ -18,9 +18,14 @@ export default function RecipeCard({ recipe, onToggleFavorite }) {
       >
         <CardMedia
           component="img"
-          height="140"
           image={recipe.image_url}
           alt={recipe.title}
+          sx={{
+            width: "100%",
+            height: "160px",
+            objectFit: "cover",
+            display: "block",
+          }}
         />
         <CardContent>
           <Typography gutterBottom variant="h6" component="div">
