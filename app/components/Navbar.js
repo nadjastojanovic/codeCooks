@@ -11,13 +11,13 @@ export default function Navbar() {
   const [showModal, setShowModal] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      const res = await fetch("/api/auth/me");
-      const data = await res.json();
-      setIsAuthenticated(!!data.user);
-    };
+  const checkAuth = async () => {
+    const res = await fetch("/api/auth/me");
+    const data = await res.json();
+    setIsAuthenticated(!!data.user);
+  };
 
+  useEffect(() => {
     checkAuth();
   }, []);
 
