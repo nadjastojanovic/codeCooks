@@ -9,11 +9,12 @@ export async function GET(request) {
         const user = verifyToken(token);
 
         const qs = `
-            SELECT r.id, r.title, r.description, r.image_url, r.favorite_count, r.created_at
+            SELECT r.id, r.title, r.description, r.image_url, r.favorite_count, r.created_at,
+            CASE WHEN f.user_id IS NOT NULL THEN true ELSE false END AS "isFavorited"
             FROM recipes_codecooks r
+            LEFT JOIN favorites_codecooks f ON r.id = f.recipe_id AND f.user_id = $1
             WHERE r.author_id = $1
-            ORDER BY r.created_at DESC;
-        `;
+            ORDER BY r.created_at DESC;`;
 
         const values = [user.id];
 

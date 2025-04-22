@@ -21,7 +21,7 @@ export async function GET(request) {
         let qs;
         let values = [];
 
-        let joinFavorites = user.id !== null;
+        let joinFavorites = user !== null;
         let selectIsFavorited = joinFavorites
             ? `CASE WHEN f.user_id IS NOT NULL THEN true ELSE false END AS "isFavorited",`
             : "";
@@ -39,7 +39,7 @@ export async function GET(request) {
                 LEFT JOIN tags_codecooks t ON rt.tag_id = t.id
                 ${joinFavoritesClause}
                 GROUP BY r.id, r.title, r.image_url${joinFavorites ? ', f.user_id' : ''}`;
-            if (user.id) values.push(user.id);
+            if (user) values.push(user.id);
         } else {
             qs = `
                 SELECT r.id, r.title, r.image_url, t.name AS tag,
@@ -50,7 +50,7 @@ export async function GET(request) {
                 JOIN tags_codecooks t ON rt.tag_id = t.id
                 ${joinFavoritesClause}
                 WHERE t.name = $${joinFavorites ? 2 : 1}`;
-            if (user.id) {
+            if (user) {
                 values.push(user.id, tag);
             } else {
                 values.push(tag);
