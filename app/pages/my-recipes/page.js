@@ -49,8 +49,8 @@ export default function MyRecipesPage() {
                 {recipes.map((recipe) => (
                     <RecipeCard
                     key={recipe.id}
-                    recipe={{ ...recipe, isFavorited: true }}
-                    onToggleFavorite={(id) => handleToggle(id, true)}
+                    recipe={ recipe }
+                    onToggleFavorite={(id) => handleToggle(id, recipe.isFavorited)}
                     />
                 ))}
                 </div>
