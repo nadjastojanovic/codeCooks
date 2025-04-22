@@ -1,5 +1,5 @@
 "use client";
-
+import { useAuth } from "../context/authContext";
 import { useEffect, useState } from "react";
 import AddRecipeModal from "./AddRecipeModal";
 import Link from "next/link";
@@ -7,17 +7,17 @@ import { AppBar, Toolbar, Button, Typography, Stack } from "@mui/material";
 import { useRouter } from "next/navigation";
 
 export default function Navbar() {
+  const { isAuthenticated, setIsAuthenticated } = useAuth();
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const checkAuth = async () => {
+    const res = await fetch("/api/auth/me");
+    const data = await res.json();
+    setIsAuthenticated(!!data.user);
+  };
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const res = await fetch("/api/auth/me");
-      const data = await res.json();
-      setIsAuthenticated(!!data.user);
-    };
-
     checkAuth();
   }, []);
 

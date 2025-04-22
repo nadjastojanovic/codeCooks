@@ -38,12 +38,6 @@ export async function GET() {
   const token = cookieStore.get("token")?.value;
   const user = verifyToken(token);
 
-  if (!user) {
-    return new Response(JSON.stringify({ error: "Not authenticated" }), {
-      status: 401,
-    });
-  }
-
   const res = await query(
     `
       SELECT r.id, r.title, r.image_url, ARRAY_AGG(t.name) AS tags

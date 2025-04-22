@@ -3,7 +3,7 @@ import { verifyToken } from "@/app/lib/auth";
 import { query } from "@/app/db/postgres";
 
 export async function GET() {
-  const cookieStore = await cookies(); // ⬅️ await cookies
+  const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
 
   const userData = verifyToken(token);
