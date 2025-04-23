@@ -19,7 +19,6 @@ const tag_options = ["Breakfast", "Lunch", "Dinner", "Dessert", "Drinks"];
 export default function AddRecipeModal({ onClose }) {
   const [showAlert, setShowAlert] = useState(false); // show alert if missing required fields
   const [formData, setFormData] = useState({
-    author_id: 1, // NADJA: this needs to be changed to match currently logged in user's ID
     title: "",
     description: "",
     ingredients: "",

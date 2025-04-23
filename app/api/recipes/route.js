@@ -74,6 +74,10 @@ export async function GET(request) {
 // route to ADD RECIPE
 export async function POST(request) {
     try {
+        const cookieStore = await cookies();
+        const token = cookieStore.get("token")?.value;
+        let user = verifyToken(token);
+
         let body = await request.json()
         const now = new Date() // this will be for the timestamp
 
@@ -88,7 +92,7 @@ export async function POST(request) {
             ) RETURNING id`
 
         let values = [
-            body.author_id,                     // ID of user from users table
+            user.id,                     // ID of user from users table
             body.title,                         // recipe title
             body.description || "",             // recipe description (OPTIONAL) everything else is mandatory
             JSON.stringify(body.ingredients),   // recipe ingredients
