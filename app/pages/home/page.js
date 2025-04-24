@@ -25,7 +25,6 @@ export default function Home() {
   // update recipes in place when they select a new tag
   useEffect(() => {
     fetchRecipes();
-    console.log(recipes);
   }, [selectedTag]);
 
   // toggles the favorite state and sends it to the server
