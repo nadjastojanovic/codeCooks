@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation"; // to get recipe id from url
 import { Button } from "@mui/material";
 
+import CommentItem from "@/app/components/CommentItem";
 import Navbar from "../../../components/Navbar";
 import { useAuth } from "../../../context/authContext";
 
@@ -13,6 +14,14 @@ export default function RecipePage() {
     const [recipe, setRecipe] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isFav, setIsFav] = useState(false);
+
+    const [comments, setComments] = useState([]);
+    const [newComment, setNewComment] = useState("");
+
+    const fetchComments = async () => {
+        const res = await fetch(`/api/comments?recipeId=${id}`);
+        setComments(await res.json());
+      };
 
     const fetchRecipe = async () => {
         const res = await fetch(`/api/recipes/${id}`);
@@ -28,7 +37,24 @@ export default function RecipePage() {
 
     useEffect(() => {
         fetchRecipe();
+        fetchComments();
     }, [id]);
+
+    const postComment = async () => {
+        if (!newComment.trim()) return;
+        const res = await fetch("/api/comments", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ recipeId: id, content: newComment }),
+        });
+        const c = await res.json();
+        setComments([c, ...comments]);
+        setNewComment("");
+    };
+    
+    const removeComment = (cid) => {
+        setComments(comments.filter(c => c.id !== cid));
+    };
 
     const toggleFavorite = async () => {
         try {
@@ -122,7 +148,37 @@ export default function RecipePage() {
                         </ol>
                     </section>
                     <div className="h-8" /> {/* spacer bc for some reason no vertical margins would apply*/}
+                    <div className="w-full mx-auto py-8">
+                        <h2 className="text-2xl font-semibold mb-4">Comments</h2>
+                        {comments.map(c => (
+                            <CommentItem
+                                key={c.id}
+                                {...c}
+                                onDeleted={removeComment}
+                            />
+                        ))}
+                        {isAuthenticated ? (
+                        <div className="mb-6">
+                            <textarea
+                            rows={3}
+                            className="w-full border rounded p-2 mb-2"
+                            placeholder="Add a comment…"
+                            value={newComment}
+                            onChange={e => setNewComment(e.target.value)}
+                            />
+                            <Button variant="contained" onClick={postComment}>
+                            Post Comment
+                            </Button>
+                        </div>
+                        ) : (
+                        <p className="italic text-gray-600 mb-4">
+                            Log in to leave a comment.
+                        </p>
+                        )}
+                        <div className="h-8" />
+                    </div>
                 </main>
+                
             </div>
             
         </>
