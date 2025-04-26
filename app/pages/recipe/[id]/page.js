@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation"; // to get recipe id from url
+import { useParams, useRouter } from "next/navigation"; // to get recipe id from url
 import { Button } from "@mui/material";
 
 import CommentItem from "@/app/components/CommentItem";
@@ -9,7 +9,8 @@ import { useAuth } from "../../../context/authContext";
 
 export default function RecipePage() {
     const { id } = useParams(); // get recipe id from url
-    const { isAuthenticated } = useAuth();
+    const router = useRouter();
+    const { user, isAuthenticated } = useAuth();
 
     const [recipe, setRecipe] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -38,7 +39,15 @@ export default function RecipePage() {
     useEffect(() => {
         fetchRecipe();
         fetchComments();
+        console.log(user)
     }, [id]);
+
+    const handleDeleteRecipe = async () => {
+        if (!confirm("Are you sure you want to delete this recipe?")) return;
+        const res = await fetch(`/api/recipes/${id}`, { method: "DELETE" });
+        if (res.ok) router.push("/");
+        else console.error("Failed to delete recipe");
+     };
 
     const postComment = async () => {
         if (!newComment.trim()) return;
@@ -83,6 +92,7 @@ export default function RecipePage() {
                         <h1 className="text-3xl font-extrabold">
                             {recipe.title}
                         </h1>
+                        <div className="flex space-x-4">
                         {isAuthenticated && (
                             <Button
                                 variant="outlined"
@@ -93,6 +103,17 @@ export default function RecipePage() {
                                 {isFav ? "♥ Unfavorite" : "♡ Favorite"}
                             </Button>
                         )}
+                        {isAuthenticated && user?.id == recipe.author_id && (
+                            <Button
+                                variant="contained"
+                                sx={{ m: 1 }}
+                                color="error"
+                                onClick={handleDeleteRecipe}
+                            >
+                                Delete
+                            </Button>
+                        )}
+                        </div>
                     </div>
 
                     <div className="p-4 rounded mb-8 flex justify-between">

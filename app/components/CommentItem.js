@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@mui/material";
 import { useAuth } from "../context/authContext";
 
@@ -14,10 +14,6 @@ export default function CommentItem({
 }) {
   const { user, isAuthenticated } = useAuth();
   const [likes, setLikes] = useState(initialLikes);
-
-  useEffect(() => {
-    console.log(user)
-  }, [])
 
   const handleDelete = async () => {
     if (!confirm("Delete this comment?")) return;
