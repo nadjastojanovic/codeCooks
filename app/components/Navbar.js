@@ -3,14 +3,15 @@ import { useAuth } from "../context/authContext";
 import { useEffect, useState } from "react";
 import AddRecipeModal from "./AddRecipeModal";
 import Link from "next/link";
+
 import { AppBar, Toolbar, Button, Typography, Stack, NoSsr, Backdrop, Card, TextField } from "@mui/material";
 import { useRouter, usePathname } from "next/navigation";
 
-import Lottie from "lottie-react"; // new library req
+import Lottie from "lottie-react";
 import foodAnimation from "../../public/food.json";
 
 export default function Navbar({ showSearch = false, searchTerm, setSearchTerm }) {
-  const { isAuthenticated, setIsAuthenticated } = useAuth();
+  const { isAuthenticated, setIsAuthenticated, refreshUser } = useAuth();
   const [showAnimation, setShowAnimation] = useState(false);
 
   const pathname = usePathname();
@@ -18,14 +19,8 @@ export default function Navbar({ showSearch = false, searchTerm, setSearchTerm }
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
 
-  const checkAuth = async () => {
-    const res = await fetch("/api/auth/me");
-    const data = await res.json();
-    setIsAuthenticated(!!data.user);
-  };
-
   useEffect(() => {
-    checkAuth();
+    refreshUser(); // important
   }, []);
 
   const handleCloseModal = () => {
@@ -36,7 +31,7 @@ export default function Navbar({ showSearch = false, searchTerm, setSearchTerm }
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
-    setIsAuthenticated(false);
+    await refreshUser(); // ✅ recheck immediately
     router.push("/");
   };
 
@@ -65,7 +60,10 @@ export default function Navbar({ showSearch = false, searchTerm, setSearchTerm }
             <Stack direction="row" spacing={2}>
               {isAuthenticated && (
                 <>
-                  <Button variant="contained" onClick={() => setShowModal(true)}>
+                  <Button
+                    variant="contained"
+                    onClick={() => setShowModal(true)}
+                  >
                     Add Recipe
                   </Button>
                   <Button component={Link} href="/favorites">
@@ -91,11 +89,16 @@ export default function Navbar({ showSearch = false, searchTerm, setSearchTerm }
             </Stack>
           </Toolbar>
         </AppBar>
-        <Backdrop
-          open={showAnimation}
-          sx={{ zIndex: 1000 }}
-        >
-          <Card sx={{ p: 2, display: "flex", alignItems: "center", flexDirection: "column" }}>
+
+        <Backdrop open={showAnimation} sx={{ zIndex: 1000 }}>
+          <Card
+            sx={{
+              p: 2,
+              display: "flex",
+              alignItems: "center",
+              flexDirection: "column",
+            }}
+          >
             <Lottie
               animationData={foodAnimation}
               loop
@@ -107,8 +110,8 @@ export default function Navbar({ showSearch = false, searchTerm, setSearchTerm }
           </Card>
         </Backdrop>
       </NoSsr>
+
       {showModal && <AddRecipeModal onClose={handleCloseModal} />}
-        
     </>
   );
 }

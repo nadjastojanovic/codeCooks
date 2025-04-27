@@ -3,9 +3,11 @@ import jwt from "jsonwebtoken";
 const SECRET = process.env.JWT_SECRET || "dev_secret"; // put real secret in .env later
 
 export function createToken(user) {
-  return jwt.sign({ id: user.id, username: user.username }, SECRET, {
-    expiresIn: "7d",
-  });
+  return jwt.sign(
+    { id: user.id, username: user.username, is_admin: user.is_admin },
+    SECRET,
+    { expiresIn: "7d" }
+  );
 }
 
 export function verifyToken(token) {

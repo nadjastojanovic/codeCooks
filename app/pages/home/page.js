@@ -22,31 +22,37 @@ export default function Home() {
       const response = await fetch(`/api/recipes${tagParam}`); // route
       const data = await response.json();
       setRecipes(data);
-      console.log(data)
+      console.log(data);
     } catch (err) {
       console.error("Failed to fetch recipes", err);
     }
   };
 
-  // update recipes in place when they select a new tag
+  // update recipes when they select a new tag
   useEffect(() => {
     fetchRecipes();
   }, [selectedTag]);
 
-  // toggles the favorite state and sends it to the server
+  // toggle favorite state
   const toggleFavorite = async (recipeId, isFavorited) => {
     try {
       const res = await fetch("/api/favorites", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ recipeId, isFavorited: !isFavorited }),
+        body: JSON.stringify({ recipeId, isFavorited }),
       });
 
       if (res.ok) {
-        // flip the favorited state for this recipe
         setRecipes((prev) =>
           prev.map((r) =>
-            r.id === recipeId ? { ...r, isFavorited: !isFavorited } : r
+            r.id === recipeId
+              ? {
+                  ...r,
+                  isFavorited: !isFavorited,
+                  favorite_count:
+                    Number(r.favorite_count) + (isFavorited ? -1 : 1),
+                }
+              : r
           )
         );
       }
@@ -59,12 +65,22 @@ export default function Home() {
     r.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // delete recipe
+  const handleDeleteRecipe = async (recipeId) => {
+    if (!confirm("Are you sure you want to delete this recipe?")) return;
+
+    try {
+      await fetch(`/api/recipes/${recipeId}`, { method: "DELETE" });
+      setRecipes((prev) => prev.filter((r) => r.id !== recipeId));
+    } catch (err) {
+      console.error("Failed to delete recipe", err);
+    }
+  };
+
   return (
     <>
       <Navbar showSearch={pathname === "/"} searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
       <main className="py-10 flex justify-center">
-        {/* <div className="bg-blue-500 text-white p-4">Tailwind works!</div> */}
-
         <div className="w-full max-w-4xl px-4">
           <TagFilter
             selectedTag={selectedTag}
@@ -76,19 +92,22 @@ export default function Home() {
               <RecipeCard
                 key={recipe.id}
                 recipe={recipe}
-                onToggleFavorite={(id) =>
-                  toggleFavorite(id, recipe.isFavorited)
+                onToggleFavorite={(id, isFavorited) =>
+                  toggleFavorite(id, isFavorited)
                 }
+                onDeleteRecipe={handleDeleteRecipe}
               />
             ))}
           </div>
+
           <div className="h-8" />
+
           <div
             className="mt-12 cursor-pointer overflow-hidden h-48 rounded-lg bg-cover bg-center"
-             style={{
+            style={{
               backgroundImage:
                 "url('https://static.vecteezy.com/system/resources/thumbnails/053/454/299/small_2x/colorful-assortment-of-asian-dishes-served-on-a-dark-table-with-chopsticks-and-sauces-photo.jpg')",
-              }}
+            }}
             onClick={() => router.push("/pages/random-recipe")}
           >
             <div className="h-full flex flex-col w-1/2 justify-center items-center">
@@ -100,6 +119,7 @@ export default function Home() {
               </p>
             </div>
           </div>
+
           <div className="h-8" />
         </div>
       </main>
