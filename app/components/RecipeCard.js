@@ -57,8 +57,23 @@ export default function RecipeCard({
         </CardContent>
       </Link>
 
+      {isAuthenticated && (
+        <div className="flex justify-center mt-2">
+          <Button
+            type="button"
+            variant="outlined"
+            color={recipe.isFavorited ? "error" : "inherit"}
+            sx={{ mx: 1, mt: -2, mb: 2, textTransform: "none" }}
+            onClick={() => onToggleFavorite(recipe.id, recipe.isFavorited)}
+          >
+            {recipe.isFavorited ? "♥" : "♡"} {recipe.favorite_count || 0}{" "}
+            Favorites
+          </Button>
+        </div>
+      )}
+
       {recipe.tags && recipe.tags.length > 0 && (
-        <div className="flex flex-wrap gap-2 px-2">
+        <div className="flex flex-wrap justify-center gap-2 p-2">
           {recipe.tags.map((tag, index) => (
             <Chip
               key={index}
@@ -74,20 +89,6 @@ export default function RecipeCard({
         </div>
       )}
 
-      {isAuthenticated && (
-        <div className="flex justify-center mt-2">
-          <Button
-            type="button"
-            variant="outlined"
-            color={recipe.isFavorited ? "error" : "inherit"}
-            sx={{ m: 1, textTransform: "none" }}
-            onClick={() => onToggleFavorite(recipe.id, recipe.isFavorited)}
-          >
-            {recipe.isFavorited ? "♥" : "♡"} {recipe.favorite_count || 0}{" "}
-            Favorites
-          </Button>
-        </div>
-      )}
     </Card>
   );
 }
