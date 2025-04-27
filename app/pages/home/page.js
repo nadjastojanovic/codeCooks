@@ -5,10 +5,12 @@ import { useRouter, usePathname } from "next/navigation";
 import Navbar from "../../components/Navbar";
 import RecipeCard from "../../components/RecipeCard";
 import TagFilter from "../../components/TagFilter";
+import Loader from "../../components/Loader";
 
 export default function Home() {
   const [recipes, setRecipes] = useState([]);
   const [selectedTag, setSelectedTag] = useState("All"); // by default, show all recipes
+  const [loading, setLoading] = useState(true);
 
   const [searchTerm, setSearchTerm] = useState(""); // for the search bar
   const pathname = usePathname();
@@ -23,6 +25,7 @@ export default function Home() {
       const data = await response.json();
       setRecipes(data);
       console.log(data);
+      setLoading(false);
     } catch (err) {
       console.error("Failed to fetch recipes", err);
     }
@@ -76,6 +79,10 @@ export default function Home() {
       console.error("Failed to delete recipe", err);
     }
   };
+
+  if (loading) {
+    return <Loader />;
+  }
 
   return (
     <>

@@ -1,8 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
-import Navbar from "../../components/Navbar";
 import StarIcon from "@mui/icons-material/Star";
 import { Button } from "@mui/material";
+
+import Navbar from "../../components/Navbar";
+import Loader from "../../components/Loader";
 
 export default function RandomRecipePage() {
   const [meal, setMeal] = useState(null);
@@ -14,7 +16,7 @@ export default function RandomRecipePage() {
       .catch(console.error);
   }, []);
 
-  if (!meal) return <div className="p-8 text-center">Loading…</div>;
+  if (!meal) return <Loader />;
 
   return (
     <>
