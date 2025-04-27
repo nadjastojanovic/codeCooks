@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation"; // to get recipe id from url
 import { Button } from "@mui/material";
 
+import { PhotoProvider, PhotoView } from 'react-photo-view'; // new library requirement
+
 import CommentItem from "@/app/components/CommentItem";
 import Navbar from "../../../components/Navbar";
 import { useAuth } from "../../../context/authContext";
@@ -138,13 +140,17 @@ export default function RecipePage() {
 
                     <div className="h-2" /> {/* spacer bc for some reason no vertical margins would apply*/}
 
-                    <div className="w-full h-[400px] overflow-hidden rounded-lg">
-                        <img
-                        src={recipe.image_url}
-                        alt={recipe.title}
-                        className="w-full h-full object-cover"
-                        />
-                    </div>
+                    <PhotoProvider>
+                        <div className="w-full h-[400px] overflow-hidden rounded-lg">
+                            <PhotoView src={recipe.image_url}>
+                                <img
+                                src={recipe.image_url}
+                                alt={recipe.title}
+                                className="w-full h-full object-cover"
+                                />
+                            </PhotoView>
+                        </div>
+                    </PhotoProvider>
 
                     <div className="h-2" /> {/* spacer bc for some reason no vertical margins would apply*/}
 

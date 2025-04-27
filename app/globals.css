@@ -1,4 +1,5 @@
 @import "tailwindcss"; /* tailwind docs: https://tailwindcss.com/docs/installation/framework-guides/nextjs */
+@import 'react-photo-view/dist/react-photo-view.css'; /* new library requirement */
 
 :root {
   --background: #ffffff;
