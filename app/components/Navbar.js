@@ -16,32 +16,17 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/navigation";
 
-import Lottie from "lottie-react"; // new library req
+import Lottie from "lottie-react";
 import foodAnimation from "../../public/food.json";
 
 export default function Navbar() {
-  const { isAuthenticated, setIsAuthenticated } = useAuth();
+  const { isAuthenticated, setIsAuthenticated, refreshUser } = useAuth();
   const [showAnimation, setShowAnimation] = useState(false);
-
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
 
-  const checkAuth = async () => {
-    try {
-      const res = await fetch("/api/auth/me");
-      if (!res.ok) {
-        setIsAuthenticated(false);
-        return;
-      }
-      const data = await res.json();
-      setIsAuthenticated(!!data.id); // ✅ check for id, not data.user
-    } catch (err) {
-      setIsAuthenticated(false);
-    }
-  };
-
   useEffect(() => {
-    checkAuth();
+    refreshUser(); // important
   }, []);
 
   const handleCloseModal = () => {
@@ -52,7 +37,7 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
-    setIsAuthenticated(false);
+    await refreshUser(); // ✅ recheck immediately
     router.push("/");
   };
 
@@ -101,6 +86,7 @@ export default function Navbar() {
             </Stack>
           </Toolbar>
         </AppBar>
+
         <Backdrop open={showAnimation} sx={{ zIndex: 1000 }}>
           <Card
             sx={{
@@ -121,6 +107,7 @@ export default function Navbar() {
           </Card>
         </Backdrop>
       </NoSsr>
+
       {showModal && <AddRecipeModal onClose={handleCloseModal} />}
     </>
   );
