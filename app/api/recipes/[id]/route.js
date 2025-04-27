@@ -4,7 +4,7 @@ import { query } from "@/app/db/postgres";
 
 export async function GET(request, context) {
   const { params } = await context;
-  const { id } = params;
+  const { id } = await params;
 
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
