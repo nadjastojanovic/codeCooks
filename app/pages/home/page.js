@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 import Navbar from "../../components/Navbar";
 import RecipeCard from "../../components/RecipeCard";
@@ -8,6 +9,8 @@ import TagFilter from "../../components/TagFilter";
 export default function Home() {
   const [recipes, setRecipes] = useState([]);
   const [selectedTag, setSelectedTag] = useState("All"); // by default, show all recipes
+
+  const router = useRouter();
 
   // function to load recipes, with optional filtering by tag
   const fetchRecipes = async () => {
@@ -72,6 +75,25 @@ export default function Home() {
               />
             ))}
           </div>
+          <div className="h-8" />
+          <div
+            className="mt-12 cursor-pointer overflow-hidden h-48 rounded-lg bg-cover bg-center"
+             style={{
+              backgroundImage:
+                "url('https://static.vecteezy.com/system/resources/thumbnails/053/454/299/small_2x/colorful-assortment-of-asian-dishes-served-on-a-dark-table-with-chopsticks-and-sauces-photo.jpg')",
+              }}
+            onClick={() => router.push("/pages/random-recipe")}
+          >
+            <div className="h-full flex flex-col w-1/2 justify-center items-center">
+              <h2 className="text-2xl font-bold text-white">
+                Can't find what you're looking for?
+              </h2>
+              <p className="mt-2 text-lg text-white">
+                Discover today's surprise from TheMealDB!
+              </p>
+            </div>
+          </div>
+          <div className="h-8" />
         </div>
       </main>
     </>
