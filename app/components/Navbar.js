@@ -3,25 +3,19 @@ import { useAuth } from "../context/authContext";
 import { useEffect, useState } from "react";
 import AddRecipeModal from "./AddRecipeModal";
 import Link from "next/link";
-import {
-  AppBar,
-  Toolbar,
-  Button,
-  Typography,
-  Stack,
-  NoSsr,
-  Backdrop,
-  Card,
-  CardContent,
-} from "@mui/material";
-import { useRouter } from "next/navigation";
+
+import { AppBar, Toolbar, Button, Typography, Stack, NoSsr, Backdrop, Card, TextField } from "@mui/material";
+import { useRouter, usePathname } from "next/navigation";
 
 import Lottie from "lottie-react";
 import foodAnimation from "../../public/food.json";
 
-export default function Navbar() {
+export default function Navbar({ showSearch = false, searchTerm, setSearchTerm }) {
   const { isAuthenticated, setIsAuthenticated, refreshUser } = useAuth();
   const [showAnimation, setShowAnimation] = useState(false);
+
+  const pathname = usePathname();
+
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
 
@@ -54,6 +48,15 @@ export default function Navbar() {
             >
               CodeCooks
             </Typography>
+            {showSearch && (
+              <TextField
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search recipes…"
+                size="small"
+                sx={{ width: 300 }}
+              />
+            )}
             <Stack direction="row" spacing={2}>
               {isAuthenticated && (
                 <>

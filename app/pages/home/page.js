@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 import Navbar from "../../components/Navbar";
 import RecipeCard from "../../components/RecipeCard";
@@ -9,6 +9,9 @@ import TagFilter from "../../components/TagFilter";
 export default function Home() {
   const [recipes, setRecipes] = useState([]);
   const [selectedTag, setSelectedTag] = useState("All"); // by default, show all recipes
+
+  const [searchTerm, setSearchTerm] = useState(""); // for the search bar
+  const pathname = usePathname();
 
   const router = useRouter();
 
@@ -58,6 +61,10 @@ export default function Home() {
     }
   };
 
+  const displayed = recipes.filter((r) =>
+    r.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   // delete recipe
   const handleDeleteRecipe = async (recipeId) => {
     if (!confirm("Are you sure you want to delete this recipe?")) return;
@@ -72,7 +79,7 @@ export default function Home() {
 
   return (
     <>
-      <Navbar />
+      <Navbar showSearch={pathname === "/"} searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
       <main className="py-10 flex justify-center">
         <div className="w-full max-w-4xl px-4">
           <TagFilter
@@ -81,7 +88,7 @@ export default function Home() {
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-8 mt-8">
-            {recipes.map((recipe) => (
+            {displayed.map((recipe) => (
               <RecipeCard
                 key={recipe.id}
                 recipe={recipe}
