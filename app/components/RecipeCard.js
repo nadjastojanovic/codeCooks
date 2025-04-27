@@ -6,12 +6,12 @@ import {
   CardContent,
   Typography,
   Button,
-  Chip
+  Chip,
 } from "@mui/material";
 import { useAuth } from "../context/authContext";
 
-export default function RecipeCard({recipe, onToggleFavorite}) {
-  const { isAuthenticated, setIsAuthenticated } = useAuth();
+export default function RecipeCard({ recipe, onToggleFavorite }) {
+  const { isAuthenticated } = useAuth();
 
   return (
     <Card sx={{ maxWidth: 345, paddingBottom: 2 }}>
@@ -37,37 +37,37 @@ export default function RecipeCard({recipe, onToggleFavorite}) {
         </CardContent>
       </Link>
 
-      <div>
-        {recipe.tags && recipe.tags.length > 0 && ( // display this recipe's tags
-          <div className="flex space-x-2">
-            {recipe.tags.map((tag, index) => (
-              <Chip
-                key={index}
-                label={tag}
-                color="primary" // blue
-                style={{
-                  color: "white",
-                  fontWeight: "bold",
-                  margin: "0 -5px 0 15px",
-                  padding: "6px 12px",
-                }}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-
-      {isAuthenticated  && (
-        <Button
-          variant="outlined"
-          color={recipe.isFavorited ? "error" : "inherit"}
-          sx={{ m: 2 }}
-          onClick={() => onToggleFavorite(recipe.id)}
-        >
-          {recipe.isFavorited ? "♥ Unfavorite" : "♡ Favorite"}
-        </Button>
+      {recipe.tags && recipe.tags.length > 0 && (
+        <div className="flex flex-wrap gap-2 px-2">
+          {recipe.tags.map((tag, index) => (
+            <Chip
+              key={index}
+              label={tag}
+              color="primary"
+              style={{
+                color: "white",
+                fontWeight: "bold",
+                padding: "6px 12px",
+              }}
+            />
+          ))}
+        </div>
       )}
-      
+
+      {isAuthenticated && (
+        <div className="flex justify-center mt-2">
+          <Button
+            type="button"
+            variant="outlined"
+            color={recipe.isFavorited ? "error" : "inherit"}
+            sx={{ m: 1, textTransform: "none" }}
+            onClick={() => onToggleFavorite(recipe.id, recipe.isFavorited)}
+          >
+            {recipe.isFavorited ? "♥" : "♡"} {recipe.favorite_count || 0}{" "}
+            Favorites
+          </Button>
+        </div>
+      )}
     </Card>
   );
 }

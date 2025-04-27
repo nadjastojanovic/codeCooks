@@ -12,9 +12,8 @@ export default function FavoritesPage() {
 
   const loadFavorites = async () => {
     const res = await fetch("/api/favorites");
-
     const data = await res.json();
-    console.log(data)
+    console.log(data);
 
     setRecipes(data);
     setLoading(false);
@@ -25,14 +24,18 @@ export default function FavoritesPage() {
   }, [router]);
 
   const handleToggle = async (recipeId, isFavorited) => {
-    await fetch("/api/favorites", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ recipeId, isFavorited: !isFavorited }),
-    });
+    try {
+      await fetch("/api/favorites", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ recipeId, isFavorited }),
+      });
 
-    //  remove from UI on unfavorite
-    setRecipes((prev) => prev.filter((r) => r.id !== recipeId));
+      // remove from UI on unfavorite
+      setRecipes((prev) => prev.filter((r) => r.id !== recipeId));
+    } catch (err) {
+      console.error("Failed to unfavorite recipe", err);
+    }
   };
 
   if (loading) {
@@ -49,8 +52,10 @@ export default function FavoritesPage() {
             {recipes.map((recipe) => (
               <RecipeCard
                 key={recipe.id}
-                recipe={{ ...recipe, isFavorited: true }}
-                onToggleFavorite={(id) => handleToggle(id, true)}
+                recipe={recipe}
+                onToggleFavorite={(id, isFavorited) =>
+                  handleToggle(id, isFavorited)
+                }
               />
             ))}
           </div>

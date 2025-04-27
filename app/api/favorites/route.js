@@ -15,7 +15,7 @@ export async function POST(req) {
 
   const { recipeId, isFavorited } = await req.json();
 
-  if (isFavorited) {
+  if (!isFavorited) {
     await query(
       `INSERT INTO favorites_codecooks (user_id, recipe_id, favorited_at)
        VALUES ($1, $2, NOW()) ON CONFLICT DO NOTHING`,
@@ -38,16 +38,28 @@ export async function GET() {
   const token = cookieStore.get("token")?.value;
   const user = verifyToken(token);
 
+  if (!user) {
+    return new Response(JSON.stringify({ error: "Not authenticated" }), {
+      status: 401,
+    });
+  }
+
   const res = await query(
     `
-      SELECT r.id, r.title, r.image_url, ARRAY_AGG(t.name) AS tags
+      SELECT 
+        r.id,
+        r.title,
+        r.image_url,
+        ARRAY_AGG(t.name) AS tags,
+        COUNT(f2.user_id) AS favorite_count,
+        TRUE AS "isFavorited"
       FROM recipes_codecooks r
-      JOIN favorites_codecooks f ON r.id = f.recipe_id
+      JOIN favorites_codecooks f1 ON r.id = f1.recipe_id AND f1.user_id = $1 -- recipes favorited by the user
+      LEFT JOIN favorites_codecooks f2 ON r.id = f2.recipe_id -- all users who favorited
       LEFT JOIN recipe_tags_codecooks rt ON r.id = rt.recipe_id
       LEFT JOIN tags_codecooks t ON rt.tag_id = t.id
-      WHERE f.user_id = $1
       GROUP BY r.id, r.title, r.image_url
-    `,
+      `,
     [user.id]
   );
 
