@@ -65,7 +65,6 @@ export default function AddRecipeModal({ onClose }) {
       const data = await response.json();
 
       if (response.ok) {
-        console.log("Recipe added:", data);
         onClose();
       } else {
         console.error("Error:", data.error);
@@ -85,90 +84,92 @@ export default function AddRecipeModal({ onClose }) {
   };
 
   return (
-    <Dialog open onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle className="text-xl font-semibold">Add a Recipe</DialogTitle>
-      <DialogContent>
-        <Stack spacing={2} sx={{ mt: 1 }}>
-          {showAlert && (
-            <Alert severity="warning">
-              Please fill out all required fields.
-            </Alert>
-          )}
-          <TextField
-            name="title"
-            label="Title*"
-            value={formData.title}
-            onChange={handleChange}
-            fullWidth
-          />
-          <TextField
-            name="description"
-            label="Description (optional)"
-            multiline
-            rows={2}
-            value={formData.description}
-            onChange={handleChange}
-            fullWidth
-          />
-          <TextField
-            name="image_url"
-            label="Image URL*"
-            value={formData.image_url}
-            onChange={handleChange}
-            fullWidth
-          />
-          <TextField
-            name="ingredients"
-            label="Ingredients* (one per line)"
-            multiline
-            rows={3}
-            value={formData.ingredients}
-            onChange={handleChange}
-            fullWidth
-            required
-          />
-          <TextField
-            name="steps"
-            label="Steps (one per line)"
-            multiline
-            rows={4}
-            value={formData.steps}
-            onChange={handleChange}
-            fullWidth
-            required
-          />
-          <div>
-            <div className="text-sm font-medium text-gray-600 mb-1">
-              Select Tags:
+    <>
+      <Dialog open onClose={onClose} fullWidth maxWidth="sm">
+        <DialogTitle className="text-xl font-semibold">Add a Recipe</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            {showAlert && (
+              <Alert severity="warning">
+                Please fill out all required fields.
+              </Alert>
+            )}
+            <TextField
+              name="title"
+              label="Title*"
+              value={formData.title}
+              onChange={handleChange}
+              fullWidth
+            />
+            <TextField
+              name="description"
+              label="Description (optional)"
+              multiline
+              rows={2}
+              value={formData.description}
+              onChange={handleChange}
+              fullWidth
+            />
+            <TextField
+              name="image_url"
+              label="Image URL*"
+              value={formData.image_url}
+              onChange={handleChange}
+              fullWidth
+            />
+            <TextField
+              name="ingredients"
+              label="Ingredients* (one per line)"
+              multiline
+              rows={3}
+              value={formData.ingredients}
+              onChange={handleChange}
+              fullWidth
+              required
+            />
+            <TextField
+              name="steps"
+              label="Steps (one per line)"
+              multiline
+              rows={4}
+              value={formData.steps}
+              onChange={handleChange}
+              fullWidth
+              required
+            />
+            <div>
+              <div className="text-sm font-medium text-gray-600 mb-1">
+                Select Tags:
+              </div>
+              <FormGroup row>
+                {tag_options.map((tag) => (
+                  <FormControlLabel
+                    key={tag}
+                    control={
+                      <Checkbox
+                        checked={formData.tags.includes(tag)}
+                        onChange={() => handleTagToggle(tag)}
+                      />
+                    }
+                    label={tag}
+                  />
+                ))}
+              </FormGroup>
             </div>
-            <FormGroup row>
-              {tag_options.map((tag) => (
-                <FormControlLabel
-                  key={tag}
-                  control={
-                    <Checkbox
-                      checked={formData.tags.includes(tag)}
-                      onChange={() => handleTagToggle(tag)}
-                    />
-                  }
-                  label={tag}
-                />
-              ))}
-            </FormGroup>
-          </div>
-        </Stack>
-      </DialogContent>
-      <DialogActions className="px-6 pb-4">
-        <Button onClick={onClose} variant="outlined">
-          Cancel
-        </Button>
-        <Button
-          onClick={handleSubmit}
-          variant="contained"
-        >
-          Submit
-        </Button>
-      </DialogActions>
-    </Dialog>
+          </Stack>
+        </DialogContent>
+        <DialogActions className="px-6 pb-4">
+          <Button onClick={onClose} variant="outlined">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            variant="contained"
+          >
+            Submit
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 }
