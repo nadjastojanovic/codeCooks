@@ -7,6 +7,8 @@ import { PhotoProvider, PhotoView } from "react-photo-view"; // new library requ
 
 import CommentItem from "@/app/components/CommentItem";
 import Navbar from "../../../components/Navbar";
+import Loader from "../../../components/Loader";
+
 import { useAuth } from "../../../context/authContext";
 
 export default function RecipePage() {
@@ -81,9 +83,9 @@ export default function RecipePage() {
   };
 
   if (loading) {
-    return <div className="p-8 text-center">Loading…</div>;
+    return <Loader />;
   }
-
+  
   return (
     <>
       <Navbar />

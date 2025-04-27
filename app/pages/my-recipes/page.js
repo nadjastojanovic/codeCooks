@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 
 import Navbar from "../../components/Navbar";
 import RecipeCard from "../../components/RecipeCard";
+import Loader from "../../components/Loader";
 
 export default function MyRecipesPage() {
   const router = useRouter();
@@ -36,7 +37,7 @@ export default function MyRecipesPage() {
   };
 
   if (loading) {
-    return <div className="p-8 text-center">Loading...</div>;
+    return <Loader />;
   }
 
   return (
