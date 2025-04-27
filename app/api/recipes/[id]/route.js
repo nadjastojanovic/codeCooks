@@ -45,12 +45,11 @@ export async function DELETE(request, context) {
   const { params } = await context;
   const { id } = params;
 
-  // Authenticate
   const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
-  let userId;
+  const token = (await cookieStore).get("token")?.value;
+  let user;
   try {
-    userId = verifyToken(token).id;
+    user = verifyToken(token); // should include user.id and user.is_admin
   } catch {
     return new Response(JSON.stringify({ error: "Not authenticated" }), {
       status: 401,
@@ -58,19 +57,21 @@ export async function DELETE(request, context) {
     });
   }
 
-  // Only allow recipe author to delete
   const check = await query(
     "SELECT author_id FROM recipes_codecooks WHERE id = $1",
     [id]
   );
-  if (!check.rows.length || check.rows[0].author_id !== userId) {
+
+  if (
+    !check.rows.length ||
+    (check.rows[0].author_id !== user.id && !user.is_admin)
+  ) {
     return new Response(JSON.stringify({ error: "Forbidden" }), {
       status: 403,
       headers: { "Content-Type": "application/json" },
     });
   }
 
-  // Perform delete
   await query("DELETE FROM recipes_codecooks WHERE id = $1", [id]);
   return new Response(null, { status: 204 });
 }

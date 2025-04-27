@@ -3,7 +3,17 @@ import { useAuth } from "../context/authContext";
 import { useEffect, useState } from "react";
 import AddRecipeModal from "./AddRecipeModal";
 import Link from "next/link";
-import { AppBar, Toolbar, Button, Typography, Stack, NoSsr, Backdrop, Card, CardContent, } from "@mui/material";
+import {
+  AppBar,
+  Toolbar,
+  Button,
+  Typography,
+  Stack,
+  NoSsr,
+  Backdrop,
+  Card,
+  CardContent,
+} from "@mui/material";
 import { useRouter } from "next/navigation";
 
 import Lottie from "lottie-react"; // new library req
@@ -17,9 +27,17 @@ export default function Navbar() {
   const [showModal, setShowModal] = useState(false);
 
   const checkAuth = async () => {
-    const res = await fetch("/api/auth/me");
-    const data = await res.json();
-    setIsAuthenticated(!!data.user);
+    try {
+      const res = await fetch("/api/auth/me");
+      if (!res.ok) {
+        setIsAuthenticated(false);
+        return;
+      }
+      const data = await res.json();
+      setIsAuthenticated(!!data.id); // ✅ check for id, not data.user
+    } catch (err) {
+      setIsAuthenticated(false);
+    }
   };
 
   useEffect(() => {
@@ -54,7 +72,10 @@ export default function Navbar() {
             <Stack direction="row" spacing={2}>
               {isAuthenticated && (
                 <>
-                  <Button variant="contained" onClick={() => setShowModal(true)}>
+                  <Button
+                    variant="contained"
+                    onClick={() => setShowModal(true)}
+                  >
                     Add Recipe
                   </Button>
                   <Button component={Link} href="/favorites">
@@ -80,11 +101,15 @@ export default function Navbar() {
             </Stack>
           </Toolbar>
         </AppBar>
-        <Backdrop
-          open={showAnimation}
-          sx={{ zIndex: 1000 }}
-        >
-          <Card sx={{ p: 2, display: "flex", alignItems: "center", flexDirection: "column" }}>
+        <Backdrop open={showAnimation} sx={{ zIndex: 1000 }}>
+          <Card
+            sx={{
+              p: 2,
+              display: "flex",
+              alignItems: "center",
+              flexDirection: "column",
+            }}
+          >
             <Lottie
               animationData={foodAnimation}
               loop
@@ -97,7 +122,6 @@ export default function Navbar() {
         </Backdrop>
       </NoSsr>
       {showModal && <AddRecipeModal onClose={handleCloseModal} />}
-        
     </>
   );
 }

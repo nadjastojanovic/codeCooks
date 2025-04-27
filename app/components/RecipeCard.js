@@ -9,12 +9,32 @@ import {
   Chip,
 } from "@mui/material";
 import { useAuth } from "../context/authContext";
+import DeleteIcon from "@mui/icons-material/Delete";
 
-export default function RecipeCard({ recipe, onToggleFavorite }) {
-  const { isAuthenticated } = useAuth();
+export default function RecipeCard({
+  recipe,
+  onToggleFavorite,
+  onDeleteRecipe,
+}) {
+  const { user, isAuthenticated } = useAuth();
+  console.log("In RecipeCard:", user, isAuthenticated);
+
+  const canDelete =
+    isAuthenticated && user && (user.id === recipe.author_id || user.is_admin);
 
   return (
-    <Card sx={{ maxWidth: 345, paddingBottom: 2 }}>
+    <Card sx={{ maxWidth: 345, paddingBottom: 2, position: "relative" }}>
+      {/* Show delete button only if user can delete */}
+      {canDelete && (
+        <button
+          onClick={() => onDeleteRecipe(recipe.id)}
+          className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+          type="button"
+        >
+          <DeleteIcon />
+        </button>
+      )}
+
       <Link
         href={`/recipe/${recipe.id}`}
         style={{ textDecoration: "none", color: "inherit" }}

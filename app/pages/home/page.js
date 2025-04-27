@@ -25,12 +25,12 @@ export default function Home() {
     }
   };
 
-  // update recipes in place when they select a new tag
+  // update recipes when they select a new tag
   useEffect(() => {
     fetchRecipes();
   }, [selectedTag]);
 
-  // toggles the favorite state and sends it to the server
+  // toggle favorite state
   const toggleFavorite = async (recipeId, isFavorited) => {
     try {
       const res = await fetch("/api/favorites", {
@@ -58,12 +58,22 @@ export default function Home() {
     }
   };
 
+  // delete recipe
+  const handleDeleteRecipe = async (recipeId) => {
+    if (!confirm("Are you sure you want to delete this recipe?")) return;
+
+    try {
+      await fetch(`/api/recipes/${recipeId}`, { method: "DELETE" });
+      setRecipes((prev) => prev.filter((r) => r.id !== recipeId));
+    } catch (err) {
+      console.error("Failed to delete recipe", err);
+    }
+  };
+
   return (
     <>
       <Navbar />
       <main className="py-10 flex justify-center">
-        {/* <div className="bg-blue-500 text-white p-4">Tailwind works!</div> */}
-
         <div className="w-full max-w-4xl px-4">
           <TagFilter
             selectedTag={selectedTag}
@@ -78,10 +88,13 @@ export default function Home() {
                 onToggleFavorite={(id, isFavorited) =>
                   toggleFavorite(id, isFavorited)
                 }
+                onDeleteRecipe={handleDeleteRecipe}
               />
             ))}
           </div>
+
           <div className="h-8" />
+
           <div
             className="mt-12 cursor-pointer overflow-hidden h-48 rounded-lg bg-cover bg-center"
             style={{
@@ -99,6 +112,7 @@ export default function Home() {
               </p>
             </div>
           </div>
+
           <div className="h-8" />
         </div>
       </main>

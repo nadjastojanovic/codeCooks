@@ -12,10 +12,21 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const checkAuth = async () => {
-      const res = await fetch("/api/auth/me");
-      const data = await res.json();
-      setUser(data.user);
-      setIsAuthenticated(!!data.user);
+      try {
+        const res = await fetch("/api/auth/me");
+        if (!res.ok) {
+          setUser(null);
+          setIsAuthenticated(false);
+          return;
+        }
+        const data = await res.json();
+        setUser(data); // ✅ data itself is the user object
+        setIsAuthenticated(!!data.id); // ✅ check if user has an id
+      } catch (err) {
+        console.error("Auth check failed", err);
+        setUser(null);
+        setIsAuthenticated(false);
+      }
     };
     checkAuth();
   }, []);

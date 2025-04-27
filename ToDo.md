@@ -1,0 +1,5 @@
+- Still show total favorites when not logged in
+  - just remove ability to favorite and unfavorite
+- admin controls
+- on signup you should be auto logged in and directed to home page not login page
+-

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Button } from "@mui/material";
 import { useAuth } from "../context/authContext";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 export default function CommentItem({
   id,
@@ -13,6 +14,8 @@ export default function CommentItem({
   onDeleted,
 }) {
   const { user, isAuthenticated } = useAuth();
+  console.log("In RecipeCard:", user, isAuthenticated);
+
   const [likes, setLikes] = useState(initialLikes);
 
   const handleDelete = async () => {
@@ -27,31 +30,45 @@ export default function CommentItem({
   };
 
   const date = new Date(created_at).toLocaleString("en-US", {
-    month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "numeric"
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "numeric",
   });
+
+  const canDelete =
+    isAuthenticated && user && (user.id === user_id || user.is_admin);
 
   return (
     <div className="border-b pb-4 mb-4">
-      <div className="h-4" />
       <div className="flex justify-between items-center">
-        <span className="text-sm text-gray-500">{username}</span> {/* NADJA: this needs work */}
-        <span className="text-sm text-gray-500">{date}</span>
+        <span className="text-sm text-gray-500">{username}</span>
+
+        {/* Date + Trashcan side-by-side */}
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-500">{date}</span>
+          {canDelete && (
+            <button
+              onClick={handleDelete}
+              className="text-red-500 hover:text-red-700"
+              type="button"
+            >
+              <DeleteIcon fontSize="small" />
+            </button>
+          )}
+        </div>
       </div>
-      <div className="flex justify-between items-center">
-        <p className="my-2 text-gray-800">{content}</p>
+
+      <div className="flex justify-between items-center mt-2">
+        <p className="text-gray-800">{content}</p>
         {isAuthenticated && (
-          <>
-            <Button size="small" onClick={handleLike}>
-             ★ {likes}
-            </Button>
-            {isAuthenticated && user?.id === user_id && (
-              <Button size="small" color="error" onClick={handleDelete}>
-                Delete
-              </Button>
-             )}
-          </>
+          <Button size="small" onClick={handleLike}>
+            ★ {likes}
+          </Button>
         )}
       </div>
+
       <div className="h-4" />
     </div>
   );
