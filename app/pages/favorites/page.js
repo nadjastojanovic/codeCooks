@@ -1,22 +1,25 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 import Navbar from "../../components/Navbar";
 import RecipeCard from "../../components/RecipeCard";
+import TagFilter from "../../components/TagFilter";
 import Loader from "../../components/Loader";
 
 export default function FavoritesPage() {
   const router = useRouter();
+  const pathname = usePathname();
+
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedTag, setSelectedTag] = useState("All");
 
   const loadFavorites = async () => {
     const res = await fetch("/api/favorites");
     const data = await res.json();
-    console.log(data);
-
-    setRecipes(data);
+    setRecipes(data); // ✅ store the raw recipes directly, untouched
     setLoading(false);
   };
 
@@ -32,12 +35,32 @@ export default function FavoritesPage() {
         body: JSON.stringify({ recipeId, isFavorited }),
       });
 
-      // remove from UI on unfavorite
-      setRecipes((prev) => prev.filter((r) => r.id !== recipeId));
+      if (isFavorited) {
+        // If unfavoriting, remove from favorites
+        setRecipes((prev) => prev.filter((r) => r.id !== recipeId));
+      } else {
+        // If favoriting (should not happen in favorites page), or stay favorited
+        setRecipes((prev) =>
+          prev.map((r) =>
+            r.id === recipeId
+              ? {
+                  ...r,
+                  isFavorited: true,
+                  favorite_count: Number(r.favorite_count) + 1,
+                }
+              : r
+          )
+        );
+      }
     } catch (err) {
-      console.error("Failed to unfavorite recipe", err);
+      console.error("Failed to toggle favorite", err);
     }
   };
+
+  // ✅ Correct filtering logic: don't modify recipe.tags
+  const displayedRecipes = recipes
+    .filter((r) => r.title.toLowerCase().includes(searchTerm.toLowerCase()))
+    .filter((r) => selectedTag === "All" || r.tags?.includes(selectedTag)); // ✅ pure filtering
 
   if (loading) {
     return <Loader />;
@@ -45,12 +68,22 @@ export default function FavoritesPage() {
 
   return (
     <>
-      <Navbar />
+      <Navbar
+        showSearch={pathname === "/favorites"}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+      />
       <main className="py-10 flex justify-center">
         <div className="w-full max-w-4xl px-4">
           <h1 className="text-2xl font-bold mb-4">My Favorites</h1>
+
+          <TagFilter
+            selectedTag={selectedTag}
+            setSelectedTag={setSelectedTag}
+          />
+
           <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-8 mt-8">
-            {recipes.map((recipe) => (
+            {displayedRecipes.map((recipe) => (
               <RecipeCard
                 key={recipe.id}
                 recipe={recipe}

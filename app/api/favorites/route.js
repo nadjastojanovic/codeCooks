@@ -50,16 +50,16 @@ export async function GET() {
         r.id,
         r.title,
         r.image_url,
-        ARRAY_AGG(t.name) AS tags,
-        COUNT(f2.user_id) AS favorite_count,
+        ARRAY_AGG(DISTINCT t.name) AS tags,
+        COUNT(DISTINCT f2.user_id) AS favorite_count,
         TRUE AS "isFavorited"
       FROM recipes_codecooks r
-      JOIN favorites_codecooks f1 ON r.id = f1.recipe_id AND f1.user_id = $1 -- recipes favorited by the user
-      LEFT JOIN favorites_codecooks f2 ON r.id = f2.recipe_id -- all users who favorited
+      JOIN favorites_codecooks f1 ON r.id = f1.recipe_id AND f1.user_id = $1
+      LEFT JOIN favorites_codecooks f2 ON r.id = f2.recipe_id
       LEFT JOIN recipe_tags_codecooks rt ON r.id = rt.recipe_id
       LEFT JOIN tags_codecooks t ON rt.tag_id = t.id
       GROUP BY r.id, r.title, r.image_url
-      `,
+    `,
     [user.id]
   );
 

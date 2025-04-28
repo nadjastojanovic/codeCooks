@@ -30,7 +30,7 @@ export async function GET(request) {
       : "";
 
     if (!tag || tag === "All") {
-      // ✅ No tag filter (show all recipes)
+      // No tag filter (show all recipes)
       qs = `
         SELECT r.id, r.title, r.image_url, r.author_id, ARRAY_AGG(t.name) AS tags,
         ${selectIsFavorited}
@@ -46,7 +46,7 @@ export async function GET(request) {
       `;
       if (user) values.push(user.id);
     } else {
-      // ✅ Tag filter
+      // Tag filter
       qs = `
         SELECT r.id, r.title, r.image_url, r.author_id, t.name AS tag,
         ${selectIsFavorited}

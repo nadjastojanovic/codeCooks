@@ -1,33 +1,38 @@
-import { cookies } from "next/headers"; // to get the user id
+import { cookies } from "next/headers";
 import { verifyToken } from "@/app/lib/auth";
 import { query } from "@/app/db/postgres";
 
-export async function GET(request) {
-    try {
-        const cookieStore = await cookies();
-        const token = cookieStore.get("token")?.value;
-        const user = verifyToken(token);
+export async function GET() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+  const user = verifyToken(token);
 
-        const qs = `
-            SELECT r.id, r.title, r.description, r.image_url, r.favorite_count, r.created_at,
-            CASE WHEN f.user_id IS NOT NULL THEN true ELSE false END AS "isFavorited"
-            FROM recipes_codecooks r
-            LEFT JOIN favorites_codecooks f ON r.id = f.recipe_id AND f.user_id = $1
-            WHERE r.author_id = $1
-            ORDER BY r.created_at DESC;`;
+  if (!user) {
+    return new Response(JSON.stringify({ error: "Not authenticated" }), {
+      status: 401,
+    });
+  }
 
-        const values = [user.id];
+  const text = `
+    SELECT 
+      r.id, 
+      r.title, 
+      r.image_url,
+      ARRAY_AGG(DISTINCT t.name) AS tags,
+      COUNT(DISTINCT f.user_id) AS favorite_count,
+      CASE WHEN f2.user_id IS NOT NULL THEN true ELSE false END AS "isFavorited"
+    FROM recipes_codecooks r
+    LEFT JOIN recipe_tags_codecooks rt ON r.id = rt.recipe_id
+    LEFT JOIN tags_codecooks t ON rt.tag_id = t.id
+    LEFT JOIN favorites_codecooks f ON r.id = f.recipe_id
+    LEFT JOIN favorites_codecooks f2 ON r.id = f2.recipe_id AND f2.user_id = $1
+    WHERE r.author_id = $1
+    GROUP BY r.id, f2.user_id
+  `;
 
-        const res = await query(qs, values);
+  const res = await query(text, [user.id]);
 
-        return new Response(JSON.stringify(res.rows), {
-            headers: { "Content-Type": "application/json" },
-        });
-    } catch (err) {
-        console.error(err);
-        return new Response(JSON.stringify({ error: "Internal server error" }), {
-            status: 500,
-            headers: { "Content-Type": "application/json" },
-        });
-    }
+  return new Response(JSON.stringify(res.rows), {
+    headers: { "Content-Type": "application/json" },
+  });
 }
