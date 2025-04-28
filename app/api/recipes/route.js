@@ -1,4 +1,4 @@
-import { cookies } from "next/headers"; // to get the user id
+import { cookies } from "next/headers";
 import { verifyToken } from "@/app/lib/auth";
 import { query } from "@/app/db/postgres";
 
@@ -30,11 +30,16 @@ export async function GET(request) {
       : "";
 
     if (!tag || tag === "All") {
-      // No tag filter (show all recipes)
+      // No tag filter
       qs = `
-        SELECT r.id, r.title, r.image_url, r.author_id, ARRAY_AGG(t.name) AS tags,
-        ${selectIsFavorited}
-        COUNT(f2.user_id) AS favorite_count
+        SELECT 
+          r.id, 
+          r.title, 
+          r.image_url, 
+          r.author_id, 
+          ARRAY_AGG(DISTINCT t.name) AS tags,
+          ${selectIsFavorited}
+          COUNT(DISTINCT f2.user_id) AS favorite_count
         FROM recipes_codecooks r
         LEFT JOIN recipe_tags_codecooks rt ON r.id = rt.recipe_id
         LEFT JOIN tags_codecooks t ON rt.tag_id = t.id
@@ -46,18 +51,28 @@ export async function GET(request) {
       `;
       if (user) values.push(user.id);
     } else {
-      // Tag filter
+      // Tag filter — FIXED ✅
       qs = `
-        SELECT r.id, r.title, r.image_url, r.author_id, t.name AS tag,
-        ${selectIsFavorited}
-        COUNT(f2.user_id) AS favorite_count
+        SELECT 
+          r.id, 
+          r.title, 
+          r.image_url, 
+          r.author_id, 
+          ARRAY_AGG(DISTINCT t.name) AS tags,
+          ${selectIsFavorited}
+          COUNT(DISTINCT f2.user_id) AS favorite_count
         FROM recipes_codecooks r
-        JOIN recipe_tags_codecooks rt ON r.id = rt.recipe_id
-        JOIN tags_codecooks t ON rt.tag_id = t.id
+        LEFT JOIN recipe_tags_codecooks rt ON r.id = rt.recipe_id
+        LEFT JOIN tags_codecooks t ON rt.tag_id = t.id
         ${joinFavoritesClause}
         LEFT JOIN favorites_codecooks f2 ON r.id = f2.recipe_id
-        WHERE t.name = $${joinFavorites ? 2 : 1}
-        GROUP BY r.id, r.title, r.image_url, r.author_id, t.name${
+        WHERE r.id IN (
+          SELECT rt2.recipe_id
+          FROM recipe_tags_codecooks rt2
+          JOIN tags_codecooks t2 ON rt2.tag_id = t2.id
+          WHERE t2.name = $${user ? 2 : 1}
+        )
+        GROUP BY r.id, r.title, r.image_url, r.author_id${
           joinFavorites ? ", f1.user_id" : ""
         }
       `;
@@ -77,7 +92,6 @@ export async function GET(request) {
     console.error(err);
     return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
-      headers: { "Content-Type": "application/json" },
     });
   }
 }
@@ -92,7 +106,6 @@ export async function POST(request) {
     const body = await request.json();
     const now = new Date();
 
-    // Insert into recipes table
     const qs1 = `
       INSERT INTO recipes_codecooks (
         author_id, title, description, ingredients, steps, image_url, favorite_count, created_at
@@ -108,14 +121,13 @@ export async function POST(request) {
       JSON.stringify(body.ingredients),
       JSON.stringify(body.steps),
       body.image_url,
-      0, // initialize favorite count
+      0,
       now.toISOString(),
     ];
 
     const res = await query(qs1, values);
     const recipeId = res.rows[0].id;
 
-    // Insert tags for this recipe
     for (const tag of body.tags) {
       const tagQuery = `SELECT id FROM tags_codecooks WHERE name = $1`;
       const tagRes = await query(tagQuery, [tag]);
@@ -136,7 +148,6 @@ export async function POST(request) {
     console.error(err);
     return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
-      headers: { "Content-Type": "application/json" },
     });
   }
 }
