@@ -6,7 +6,7 @@ import Navbar from "../../components/Navbar";
 import RecipeCard from "../../components/RecipeCard";
 import TagFilter from "../../components/TagFilter";
 import Loader from "../../components/Loader";
-import { useAuth } from "../../context/authContext"; // ADD THIS!
+import { useAuth } from "../../context/authContext";
 
 export default function Home() {
   const [recipes, setRecipes] = useState([]);
@@ -14,7 +14,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { isAuthenticated } = useAuth(); // ADD THIS!
+  const { isAuthenticated } = useAuth();
 
   const pathname = usePathname();
   const router = useRouter();

@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { motion } from "framer-motion"; // make sure this is installed!
 
 export default function SignupPage() {
   const router = useRouter();
@@ -33,7 +35,7 @@ export default function SignupPage() {
         return;
       }
 
-      // After successful signup, auto-login
+      // Auto-login after signup
       const loginRes = await fetch("/api/auth", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -58,8 +60,20 @@ export default function SignupPage() {
 
   return (
     <div className="flex h-screen">
-      {/* left screen side: sign up form */}
-      <div className="w-1/2 flex flex-col justify-center items-center bg-white p-12">
+      {/* left screen side: signup form */}
+      <div className="w-1/2 flex flex-col justify-center items-center bg-white p-12 relative">
+        {/* Back Button with Animation */}
+        <motion.button
+          initial={{ x: -50, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          onClick={() => router.push("/")}
+          className="absolute top-6 left-6 flex items-center text-blue-600 hover:text-blue-800 text-sm font-semibold"
+        >
+          <ArrowBackIcon fontSize="small" className="mr-1" />
+          Back to Home
+        </motion.button>
+
         <div className="w-full max-w-md">
           <h1 className="text-4xl font-extrabold mb-8 text-gray-800">
             Join the party🍴
@@ -110,7 +124,7 @@ export default function SignupPage() {
         </div>
       </div>
 
-      {/* right screen side: bg image */}
+      {/* right screen side: background image */}
       <div className="w-1/2 h-full">
         <img
           src="https://cdn.shopify.com/s/files/1/0558/6413/1764/files/Pasta_Illustration_9_1024x1024.jpg?v=1706173460"

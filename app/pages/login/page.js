@@ -1,6 +1,9 @@
 "use client";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { motion } from "framer-motion"; // << ADD THIS if not already installed!
 
 export default function LoginPage() {
   const router = useRouter();
@@ -32,9 +35,23 @@ export default function LoginPage() {
   return (
     <div className="flex h-screen">
       {/* left screen side login form */}
-      <div className="w-1/2 flex flex-col justify-center items-center bg-white p-12">
+      <div className="w-1/2 flex flex-col justify-center items-center bg-white p-12 relative">
+        {/* Back Button with Animation */}
+        <motion.button
+          initial={{ x: -50, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          onClick={() => router.push("/")}
+          className="absolute top-6 left-6 flex items-center text-blue-600 hover:text-blue-800 text-sm font-semibold"
+        >
+          <ArrowBackIcon fontSize="small" className="mr-1" />
+          Back to Home
+        </motion.button>
+
         <div className="w-full max-w-md">
-        <h1 className="text-4xl font-extrabold mb-8 text-gray-800">Welcome Back 👋</h1> 
+          <h1 className="text-4xl font-extrabold mb-8 text-gray-800">
+            Welcome Back 👋
+          </h1>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block mb-2 text-lg font-medium">Username</label>
@@ -75,9 +92,9 @@ export default function LoginPage() {
         <img
           src="https://i.etsystatic.com/5872003/r/il/ae6eff/2042612085/il_fullxfull.2042612085_d1ka.jpg"
           className="object-cover w-full h-full"
+          alt="Login background"
         />
       </div>
     </div>
-
   );
 }
