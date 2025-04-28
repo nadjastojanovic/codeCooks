@@ -1,5 +1,6 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+
+import { useState, useRef } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -11,17 +12,16 @@ import {
   FormGroup,
   FormControlLabel,
   Checkbox,
-  Alert,
   IconButton,
+  Alert,
 } from "@mui/material";
-import AddCircleIcon from "@mui/icons-material/AddCircle";
-import RemoveCircleIcon from "@mui/icons-material/RemoveCircle";
+import CloseIcon from "@mui/icons-material/Close"; // ✅ Import for X icon
+import { motion } from "framer-motion"; // ✅ Animation
 
 const tag_options = ["Breakfast", "Lunch", "Dinner", "Dessert", "Drinks"];
 
 export default function AddRecipeModal({ onClose }) {
   const [showAlert, setShowAlert] = useState(false);
-
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -36,41 +36,57 @@ export default function AddRecipeModal({ onClose }) {
 
   const isFormValid = () =>
     formData.title.trim() &&
-    formData.image_url.trim() &&
-    formData.ingredients.every((i) => i.trim()) &&
-    formData.steps.every((s) => s.trim());
+    formData.ingredients.filter(Boolean).length &&
+    formData.steps.filter(Boolean).length &&
+    formData.image_url.trim();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleArrayChange = (index, value, type) => {
-    const updated = [...formData[type]];
+  const handleIngredientChange = (index, value) => {
+    const updated = [...formData.ingredients];
     updated[index] = value;
-    setFormData((prev) => ({ ...prev, [type]: updated }));
+    setFormData((prev) => ({ ...prev, ingredients: updated }));
   };
 
-  const addField = (type) => {
-    setFormData((prev) => ({ ...prev, [type]: [...prev[type], ""] }));
-
-    setTimeout(() => {
-      if (type === "ingredients" && ingredientRefs.current.length) {
-        ingredientRefs.current[ingredientRefs.current.length - 1]?.focus();
-      }
-      if (type === "steps" && stepRefs.current.length) {
-        stepRefs.current[stepRefs.current.length - 1]?.focus();
-      }
-    }, 100); // slight delay for DOM update
+  const handleStepChange = (index, value) => {
+    const updated = [...formData.steps];
+    updated[index] = value;
+    setFormData((prev) => ({ ...prev, steps: updated }));
   };
 
-  const removeField = (index, type) => {
-    const updated = [...formData[type]];
-    updated.splice(index, 1);
+  const handleAddIngredient = () => {
     setFormData((prev) => ({
       ...prev,
-      [type]: updated.length ? updated : [""],
+      ingredients: [...prev.ingredients, ""],
     }));
+    setTimeout(() => {
+      const lastInput =
+        ingredientRefs.current[ingredientRefs.current.length - 1];
+      if (lastInput) lastInput.focus();
+    }, 0);
+  };
+
+  const handleAddStep = () => {
+    setFormData((prev) => ({ ...prev, steps: [...prev.steps, ""] }));
+    setTimeout(() => {
+      const lastInput = stepRefs.current[stepRefs.current.length - 1];
+      if (lastInput) lastInput.focus();
+    }, 0);
+  };
+
+  const handleDeleteIngredient = (index) => {
+    const updated = [...formData.ingredients];
+    updated.splice(index, 1);
+    setFormData((prev) => ({ ...prev, ingredients: updated }));
+  };
+
+  const handleDeleteStep = (index) => {
+    const updated = [...formData.steps];
+    updated.splice(index, 1);
+    setFormData((prev) => ({ ...prev, steps: updated }));
   };
 
   const handleSubmit = async () => {
@@ -83,8 +99,8 @@ export default function AddRecipeModal({ onClose }) {
 
     const payload = {
       ...formData,
-      ingredients: formData.ingredients.filter((i) => i.trim()),
-      steps: formData.steps.filter((s) => s.trim()),
+      ingredients: formData.ingredients.filter(Boolean),
+      steps: formData.steps.filter(Boolean),
     };
 
     try {
@@ -94,12 +110,10 @@ export default function AddRecipeModal({ onClose }) {
         body: JSON.stringify(payload),
       });
 
-      const data = await response.json();
-
       if (response.ok) {
         onClose();
       } else {
-        console.error("Error:", data.error);
+        console.error("Error submitting recipe");
       }
     } catch (error) {
       console.error("Request failed", error);
@@ -116,131 +130,143 @@ export default function AddRecipeModal({ onClose }) {
   };
 
   return (
-    <Dialog open onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle className="text-xl font-semibold">Add a Recipe</DialogTitle>
-      <DialogContent>
-        <Stack spacing={2} sx={{ mt: 1 }}>
-          {showAlert && (
-            <Alert severity="warning">
-              Please fill out all required fields.
-            </Alert>
-          )}
-          <TextField
-            name="title"
-            label="Title*"
-            value={formData.title}
-            onChange={handleChange}
-            fullWidth
-          />
-          <TextField
-            name="description"
-            label="Description (optional)"
-            multiline
-            rows={2}
-            value={formData.description}
-            onChange={handleChange}
-            fullWidth
-          />
-          <TextField
-            name="image_url"
-            label="Image URL*"
-            value={formData.image_url}
-            onChange={handleChange}
-            fullWidth
-          />
+    <>
+      <Dialog open onClose={onClose} fullWidth maxWidth="sm">
+        <DialogTitle className="text-xl font-semibold">
+          Add a Recipe
+        </DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            {showAlert && (
+              <Alert severity="warning">
+                Please fill out all required fields.
+              </Alert>
+            )}
+            <TextField
+              name="title"
+              label="Title*"
+              value={formData.title}
+              onChange={handleChange}
+              fullWidth
+            />
+            <TextField
+              name="description"
+              label="Description (optional)"
+              multiline
+              rows={2}
+              value={formData.description}
+              onChange={handleChange}
+              fullWidth
+            />
+            <TextField
+              name="image_url"
+              label="Image URL*"
+              value={formData.image_url}
+              onChange={handleChange}
+              fullWidth
+            />
 
-          {/* Ingredients */}
-          <div>
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="font-medium">Ingredients*</h3>
-              <IconButton size="small" onClick={() => addField("ingredients")}>
-                <AddCircleIcon color="primary" />
-              </IconButton>
-            </div>
-            {formData.ingredients.map((ing, idx) => (
-              <div key={idx} className="flex items-center gap-2 mb-1">
-                <TextField
-                  inputRef={(el) => (ingredientRefs.current[idx] = el)}
-                  value={ing}
-                  onChange={(e) =>
-                    handleArrayChange(idx, e.target.value, "ingredients")
-                  }
-                  placeholder={`Ingredient ${idx + 1}`}
-                  fullWidth
-                  size="small"
-                />
-                <IconButton
-                  size="small"
-                  color="error"
-                  onClick={() => removeField(idx, "ingredients")}
-                >
-                  <RemoveCircleIcon />
-                </IconButton>
+            {/* Ingredients */}
+            <Stack spacing={1}>
+              <div className="flex justify-between items-center">
+                <h2 className="text-md font-medium">Ingredients*</h2>
+                <Button onClick={handleAddIngredient} size="small">
+                  + Add Ingredient
+                </Button>
               </div>
-            ))}
-          </div>
-
-          {/* Steps */}
-          <div>
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="font-medium">Steps*</h3>
-              <IconButton size="small" onClick={() => addField("steps")}>
-                <AddCircleIcon color="primary" />
-              </IconButton>
-            </div>
-            {formData.steps.map((step, idx) => (
-              <div key={idx} className="flex items-center gap-2 mb-1">
-                <TextField
-                  inputRef={(el) => (stepRefs.current[idx] = el)}
-                  value={step}
-                  onChange={(e) =>
-                    handleArrayChange(idx, e.target.value, "steps")
-                  }
-                  placeholder={`Step ${idx + 1}`}
-                  fullWidth
-                  size="small"
-                />
-                <IconButton
-                  size="small"
-                  color="error"
-                  onClick={() => removeField(idx, "steps")}
+              {formData.ingredients.map((ingredient, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
                 >
-                  <RemoveCircleIcon />
-                </IconButton>
-              </div>
-            ))}
-          </div>
-
-          {/* Tags */}
-          <div>
-            <div className="text-sm font-medium text-gray-600 mb-1">
-              Select Tags:
-            </div>
-            <FormGroup row>
-              {tag_options.map((tag) => (
-                <FormControlLabel
-                  key={tag}
-                  control={
-                    <Checkbox
-                      checked={formData.tags.includes(tag)}
-                      onChange={() => handleTagToggle(tag)}
+                  <div className="flex gap-2 items-center">
+                    <TextField
+                      value={ingredient}
+                      onChange={(e) =>
+                        handleIngredientChange(index, e.target.value)
+                      }
+                      fullWidth
+                      placeholder={`Ingredient ${index + 1}`}
+                      inputRef={(el) => (ingredientRefs.current[index] = el)}
                     />
-                  }
-                  label={tag}
-                />
+                    <IconButton
+                      onClick={() => handleDeleteIngredient(index)}
+                      size="small"
+                    >
+                      <CloseIcon fontSize="small" />
+                    </IconButton>
+                  </div>
+                </motion.div>
               ))}
-            </FormGroup>
-          </div>
-        </Stack>
-      </DialogContent>
-      <DialogActions className="px-6 pb-4">
-        <Button onClick={onClose} variant="outlined">
-          Cancel
-        </Button>
-        <Button onClick={handleSubmit} variant="contained">
-          Submit
-        </Button>
-      </DialogActions>
-    </Dialog>
+            </Stack>
+
+            {/* Steps */}
+            <Stack spacing={1}>
+              <div className="flex justify-between items-center">
+                <h2 className="text-md font-medium">Steps*</h2>
+                <Button onClick={handleAddStep} size="small">
+                  + Add Step
+                </Button>
+              </div>
+              {formData.steps.map((step, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <div className="flex gap-2 items-center">
+                    <TextField
+                      value={step}
+                      onChange={(e) => handleStepChange(index, e.target.value)}
+                      fullWidth
+                      placeholder={`Step ${index + 1}`}
+                      inputRef={(el) => (stepRefs.current[index] = el)}
+                    />
+                    <IconButton
+                      onClick={() => handleDeleteStep(index)}
+                      size="small"
+                    >
+                      <CloseIcon fontSize="small" />
+                    </IconButton>
+                  </div>
+                </motion.div>
+              ))}
+            </Stack>
+
+            {/* Tags */}
+            <div>
+              <div className="text-sm font-medium text-gray-600 mb-1">
+                Select Tags:
+              </div>
+              <FormGroup row>
+                {tag_options.map((tag) => (
+                  <FormControlLabel
+                    key={tag}
+                    control={
+                      <Checkbox
+                        checked={formData.tags.includes(tag)}
+                        onChange={() => handleTagToggle(tag)}
+                      />
+                    }
+                    label={tag}
+                  />
+                ))}
+              </FormGroup>
+            </div>
+          </Stack>
+        </DialogContent>
+        <DialogActions className="px-6 pb-4">
+          <Button onClick={onClose} variant="outlined">
+            Cancel
+          </Button>
+          <Button onClick={handleSubmit} variant="contained">
+            Submit
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 }
