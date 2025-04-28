@@ -4,13 +4,27 @@ import { useEffect, useState } from "react";
 import AddRecipeModal from "./AddRecipeModal";
 import Link from "next/link";
 
-import { AppBar, Toolbar, Button, Typography, Stack, NoSsr, Backdrop, Card, TextField } from "@mui/material";
+import {
+  AppBar,
+  Toolbar,
+  Button,
+  Typography,
+  Stack,
+  NoSsr,
+  Backdrop,
+  Card,
+  TextField,
+} from "@mui/material";
 import { useRouter, usePathname } from "next/navigation";
 
 import Lottie from "lottie-react";
 import foodAnimation from "../../public/food.json";
 
-export default function Navbar({ showSearch = false, searchTerm, setSearchTerm }) {
+export default function Navbar({
+  showSearch = false,
+  searchTerm,
+  setSearchTerm,
+}) {
   const { isAuthenticated, setIsAuthenticated, refreshUser } = useAuth();
   const [showAnimation, setShowAnimation] = useState(false);
 
@@ -111,7 +125,12 @@ export default function Navbar({ showSearch = false, searchTerm, setSearchTerm }
         </Backdrop>
       </NoSsr>
 
-      {showModal && <AddRecipeModal onClose={handleCloseModal} />}
+      {showModal && (
+        <AddRecipeModal
+          onClose={() => setShowModal(false)}
+          onSubmitSuccess={handleCloseModal}
+        />
+      )}
     </>
   );
 }

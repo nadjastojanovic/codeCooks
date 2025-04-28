@@ -15,12 +15,12 @@ import {
   IconButton,
   Alert,
 } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close"; // ✅ Import for X icon
-import { motion } from "framer-motion"; // ✅ Animation
+import CloseIcon from "@mui/icons-material/Close";
+import { motion } from "framer-motion"; // Animation
 
 const tag_options = ["Breakfast", "Lunch", "Dinner", "Dessert", "Drinks"];
 
-export default function AddRecipeModal({ onClose }) {
+export default function AddRecipeModal({ onClose, onSubmitSuccess }) {
   const [showAlert, setShowAlert] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
@@ -111,7 +111,7 @@ export default function AddRecipeModal({ onClose }) {
       });
 
       if (response.ok) {
-        onClose();
+        onSubmitSuccess();
       } else {
         console.error("Error submitting recipe");
       }
