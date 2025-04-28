@@ -20,17 +20,39 @@ export default function SignupPage() {
     e.preventDefault();
     setError("");
 
-    const res = await fetch("/api/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
-    });
+    try {
+      const res = await fetch("/api/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
 
-    if (res.ok) {
-      router.push("/login");
-    } else {
-      const data = await res.json();
-      setError(data.error || "Signup failed");
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error || "Signup failed");
+        return;
+      }
+
+      // After successful signup, auto-login
+      const loginRes = await fetch("/api/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: formData.username,
+          password: formData.password,
+        }),
+      });
+
+      if (loginRes.ok) {
+        router.push("/");
+      } else {
+        setError(
+          "Signup succeeded but auto-login failed. Please log in manually."
+        );
+      }
+    } catch (err) {
+      console.error("Signup error:", err);
+      setError("An unexpected error occurred.");
     }
   };
 
@@ -39,7 +61,9 @@ export default function SignupPage() {
       {/* left screen side: sign up form */}
       <div className="w-1/2 flex flex-col justify-center items-center bg-white p-12">
         <div className="w-full max-w-md">
-          <h1 className="text-4xl font-extrabold mb-8 text-gray-800">Join the party🍴</h1>
+          <h1 className="text-4xl font-extrabold mb-8 text-gray-800">
+            Join the party🍴
+          </h1>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block mb-2 text-lg font-medium">Username</label>
@@ -91,6 +115,7 @@ export default function SignupPage() {
         <img
           src="https://cdn.shopify.com/s/files/1/0558/6413/1764/files/Pasta_Illustration_9_1024x1024.jpg?v=1706173460"
           className="object-cover w-full h-full"
+          alt="Signup background"
         />
       </div>
     </div>
