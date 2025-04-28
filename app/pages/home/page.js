@@ -6,22 +6,23 @@ import Navbar from "../../components/Navbar";
 import RecipeCard from "../../components/RecipeCard";
 import TagFilter from "../../components/TagFilter";
 import Loader from "../../components/Loader";
+import { useAuth } from "../../context/authContext"; // ADD THIS!
 
 export default function Home() {
   const [recipes, setRecipes] = useState([]);
-  const [selectedTag, setSelectedTag] = useState("All"); // by default, show all recipes
+  const [selectedTag, setSelectedTag] = useState("All");
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const [searchTerm, setSearchTerm] = useState(""); // for the search bar
+  const { isAuthenticated } = useAuth(); // ADD THIS!
+
   const pathname = usePathname();
-
   const router = useRouter();
 
-  // function to load recipes, with optional filtering by tag
   const fetchRecipes = async () => {
     try {
-      const tagParam = selectedTag !== "All" ? `?tag=${selectedTag}` : ""; // use all by default or whatever they selected
-      const response = await fetch(`/api/recipes${tagParam}`); // route
+      const tagParam = selectedTag !== "All" ? `?tag=${selectedTag}` : "";
+      const response = await fetch(`/api/recipes${tagParam}`);
       const data = await response.json();
       setRecipes(data);
       console.log(data);
@@ -31,13 +32,16 @@ export default function Home() {
     }
   };
 
-  // update recipes when they select a new tag
   useEffect(() => {
     fetchRecipes();
   }, [selectedTag]);
 
-  // toggle favorite state
   const toggleFavorite = async (recipeId, isFavorited) => {
+    if (!isAuthenticated) {
+      alert("Please log in to favorite recipes.");
+      return;
+    }
+
     try {
       const res = await fetch("/api/favorites", {
         method: "POST",
@@ -68,7 +72,6 @@ export default function Home() {
     r.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // delete recipe
   const handleDeleteRecipe = async (recipeId) => {
     if (!confirm("Are you sure you want to delete this recipe?")) return;
 
@@ -86,7 +89,11 @@ export default function Home() {
 
   return (
     <>
-      <Navbar showSearch={pathname === "/"} searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+      <Navbar
+        showSearch={pathname === "/"}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+      />
       <main className="py-10 flex justify-center">
         <div className="w-full max-w-4xl px-4">
           <TagFilter

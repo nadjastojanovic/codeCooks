@@ -22,9 +22,16 @@ export default function RecipeCard({
   const canDelete =
     isAuthenticated && user && (user.id === recipe.author_id || user.is_admin);
 
+  const handleFavoriteClick = () => {
+    if (!isAuthenticated) {
+      alert("Please log in to favorite recipes.");
+      return;
+    }
+    onToggleFavorite(recipe.id, recipe.isFavorited);
+  };
+
   return (
     <Card sx={{ maxWidth: 345, paddingBottom: 2, position: "relative" }}>
-      {/* Show delete button only if user can delete */}
       {canDelete && (
         <button
           onClick={() => onDeleteRecipe(recipe.id)}
@@ -57,21 +64,26 @@ export default function RecipeCard({
         </CardContent>
       </Link>
 
-      {isAuthenticated && (
-        <div className="flex justify-center mt-2">
-          <Button
-            type="button"
-            variant="outlined"
-            color={recipe.isFavorited ? "error" : "inherit"}
-            sx={{ mx: 1, mt: -2, mb: 2, textTransform: "none" }}
-            onClick={() => onToggleFavorite(recipe.id, recipe.isFavorited)}
-          >
-            {recipe.isFavorited ? "♥" : "♡"} {recipe.favorite_count || 0}{" "}
-            Favorites
-          </Button>
-        </div>
-      )}
+      <div className="flex justify-center mt-2">
+        <Button
+          type="button"
+          variant="outlined"
+          color={recipe.isFavorited ? "error" : "inherit"}
+          sx={{
+            mx: 1,
+            mt: -2,
+            mb: 2,
+            textTransform: "none",
+            opacity: isAuthenticated ? 1 : 0.5,
+          }}
+          onClick={handleFavoriteClick}
+        >
+          {recipe.isFavorited ? "♥" : "♡"} {recipe.favorite_count || 0}{" "}
+          Favorites
+        </Button>
+      </div>
 
+      {/* Tags */}
       {recipe.tags && recipe.tags.length > 0 && (
         <div className="flex flex-wrap justify-center gap-2 p-2">
           {recipe.tags.map((tag, index) => (
@@ -88,7 +100,6 @@ export default function RecipeCard({
           ))}
         </div>
       )}
-
     </Card>
   );
 }
