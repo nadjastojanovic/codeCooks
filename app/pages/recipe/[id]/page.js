@@ -1,18 +1,17 @@
 "use client";
-import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation"; // to get recipe id from url
-import { Button } from "@mui/material";
-
-import { PhotoProvider, PhotoView } from "react-photo-view"; // new library requirement
-
+import { useState, useEffect, useRef } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { Button, IconButton, Stack } from "@mui/material";
+import { PhotoProvider, PhotoView } from "react-photo-view";
 import CommentItem from "@/app/components/CommentItem";
 import Navbar from "../../../components/Navbar";
 import Loader from "../../../components/Loader";
-
 import { useAuth } from "../../../context/authContext";
+import html2canvas from "html2canvas";
+import FileUploadIcon from "@mui/icons-material/FileUpload";
 
 export default function RecipePage() {
-  const { id } = useParams(); // get recipe id from url
+  const { id } = useParams();
   const router = useRouter();
   const { user, isAuthenticated } = useAuth();
 
@@ -22,6 +21,9 @@ export default function RecipePage() {
 
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
+
+  const recipeRef = useRef(null);
+  const exportRef = useRef(null);
 
   const fetchComments = async () => {
     const res = await fetch(`/api/comments?recipeId=${id}`);
@@ -43,7 +45,6 @@ export default function RecipePage() {
   useEffect(() => {
     fetchRecipe();
     fetchComments();
-    console.log(user);
   }, [id]);
 
   const handleDeleteRecipe = async () => {
@@ -74,7 +75,7 @@ export default function RecipePage() {
       await fetch("/api/favorites", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ recipeId: id, isFavorited: !isFav }),
+        body: JSON.stringify({ recipeId: id, isFavorited: isFav }),
       });
       setIsFav((prev) => !prev);
     } catch (err) {
@@ -82,43 +83,65 @@ export default function RecipePage() {
     }
   };
 
+  const handleExport = async () => {
+    if (!exportRef.current) return;
+    const canvas = await html2canvas(exportRef.current, {
+      backgroundColor: "#ffffff",
+      useCORS: true,
+    });
+    const link = document.createElement("a");
+    link.download = `${recipe.title}.png`;
+    link.href = canvas.toDataURL();
+    link.click();
+  };
+
   if (loading) {
     return <Loader />;
   }
-  
+
   return (
     <>
       <Navbar />
       <div className="flex justify-center py-10">
-        <main className="w-1/2 mx-auto">
-          <div className="h-8" />{" "}
-          {/* spacer bc for some reason no vertical margins would apply*/}
+        <main className="w-1/2 mx-auto" ref={recipeRef}>
+          <div className="h-8" />
+
+          {/* Title and Buttons */}
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-extrabold">{recipe.title}</h1>
-            <div className="flex space-x-4">
+
+            <Stack direction="row" spacing={1}>
+              {/* Export */}
+              <IconButton onClick={handleExport} color="primary">
+                <FileUploadIcon />
+              </IconButton>
+
+              {/* Favorite */}
               {isAuthenticated && (
                 <Button
                   variant="outlined"
-                  color={recipe.isFavorited ? "error" : "inherit"}
-                  sx={{ my: 1 }}
-                  onClick={() => toggleFavorite()}
+                  color={isFav ? "error" : "inherit"}
+                  onClick={toggleFavorite}
                 >
                   {isFav ? "♥ Unfavorite" : "♡ Favorite"}
                 </Button>
               )}
+
+              {/* Delete */}
               {isAuthenticated &&
                 (user?.id === recipe.author_id || user?.is_admin) && (
                   <Button
                     variant="contained"
-                    sx={{ m: 1 }}
                     color="error"
                     onClick={handleDeleteRecipe}
                   >
                     Delete
                   </Button>
                 )}
-            </div>
+            </Stack>
           </div>
+
+          {/* Author and Date */}
           <div className="p-4 rounded mb-8 flex justify-between">
             <span className="font-medium text-gray-700">
               By {recipe.author_name}
@@ -131,13 +154,15 @@ export default function RecipePage() {
               })}
             </span>
           </div>
-          <div className="h-8" />{" "}
-          {/* spacer bc for some reason no vertical margins would apply*/}
+
+          {/* Description */}
           {recipe.description && (
             <p className="text-lg text-gray-900">{recipe.description}</p>
           )}
-          <div className="h-2" />{" "}
-          {/* spacer bc for some reason no vertical margins would apply*/}
+
+          <div className="h-2" />
+
+          {/* Image */}
           <PhotoProvider>
             <div className="w-full h-[400px] overflow-hidden rounded-lg">
               <PhotoView src={recipe.image_url}>
@@ -149,8 +174,10 @@ export default function RecipePage() {
               </PhotoView>
             </div>
           </PhotoProvider>
-          <div className="h-2" />{" "}
-          {/* spacer bc for some reason no vertical margins would apply*/}
+
+          <div className="h-2" />
+
+          {/* Ingredients */}
           <section className="space-y-4">
             <h2 className="text-xl font-semibold">Ingredients</h2>
             <ul className="list-disc list-inside text-lg text-gray-900 space-y-2">
@@ -159,19 +186,23 @@ export default function RecipePage() {
               ))}
             </ul>
           </section>
-          <div className="h-2" />{" "}
-          {/* spacer bc for some reason no vertical margins would apply*/}
+
+          <div className="h-2" />
+
+          {/* Steps */}
           <section className="space-y-4">
             <h2 className="text-xl font-semibold">Steps</h2>
-            <ol className="list-decimal text-lg list-inside text-gray-900 space-y-3">
+            <ol className="list-decimal list-inside text-lg text-gray-900 space-y-3">
               {recipe.steps.map((step, i) => {
-                const clean = step.replace(/^\d+\.\s*/, ""); // remove the beginning 1. 2. etc. bc they get duplicated
+                const clean = step.replace(/^\d+\.\s*/, "");
                 return <li key={i}>{clean}</li>;
               })}
             </ol>
           </section>
-          <div className="h-8" />{" "}
-          {/* spacer bc for some reason no vertical margins would apply*/}
+
+          <div className="h-8" />
+
+          {/* Comments */}
           <div className="w-full mx-auto py-8">
             <h2 className="text-2xl font-semibold mb-4">Comments</h2>
             {comments.map((c) => (
@@ -195,9 +226,43 @@ export default function RecipePage() {
                 Log in to leave a comment.
               </p>
             )}
-            <div className="h-8" />
           </div>
         </main>
+      </div>
+
+      {/* Hidden div for export */}
+      <div
+        ref={exportRef}
+        style={{ position: "absolute", top: "-9999px", left: "-9999px" }}
+      >
+        <div
+          style={{
+            width: "600px",
+            background: "white",
+            padding: "24px",
+            color: "black",
+          }}
+        >
+          <h1>{recipe.title}</h1>
+          <img
+            src={recipe.image_url}
+            alt={recipe.title}
+            style={{ width: "100%", height: "auto", marginBottom: "20px" }}
+          />
+          <h2>Ingredients</h2>
+          <ul>
+            {recipe.ingredients.map((ing, i) => (
+              <li key={i}>{ing}</li>
+            ))}
+          </ul>
+          <h2>Steps</h2>
+          <ol>
+            {recipe.steps.map((step, i) => (
+              <li key={i}>{step}</li>
+            ))}
+          </ol>
+          <p style={{ marginTop: "20px" }}>By {recipe.author_name}</p>
+        </div>
       </div>
     </>
   );
