@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { motion } from "framer-motion"; // << ADD THIS if not already installed!
+import { motion } from "framer-motion";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -18,25 +18,30 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
 
-    const res = await fetch("/api/auth", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
-    });
+    try {
+      const res = await fetch("/api/auth", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
 
-    if (res.ok) {
-      router.push("/");
-    } else {
-      const data = await res.json();
-      setError(data.error || "Login failed");
+      if (res.ok) {
+        router.push("/");
+      } else {
+        const data = await res.json();
+        setError(data.error || "Login failed");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      setError("An unexpected error occurred.");
     }
   };
 
   return (
     <div className="flex h-screen">
-      {/* left screen side login form */}
+      {/* Left side: login form */}
       <div className="w-1/2 flex flex-col justify-center items-center bg-white p-12 relative">
-        {/* Back Button with Animation */}
+        {/* Back Button */}
         <motion.button
           initial={{ x: -50, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
@@ -52,42 +57,56 @@ export default function LoginPage() {
           <h1 className="text-4xl font-extrabold mb-8 text-gray-800">
             Welcome Back 👋
           </h1>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="block mb-2 text-lg font-medium">Username</label>
-              <input
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
-                required
-                className="w-full border border-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-            </div>
-            <div>
-              <label className="block mb-2 text-lg font-medium">Password</label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                className="w-full border border-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
+
+          {/* ✏️ FORM */}
+          <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+            {/* Grouped input fields - no huge gaps */}
+            <div className="flex flex-col gap-2">
+              <div>
+                <label className="block mb-1 text-lg font-medium">
+                  Username
+                </label>
+                <input
+                  name="username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  required
+                  className="w-full border border-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-1 text-lg font-medium">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  className="w-full border border-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+              </div>
             </div>
 
+            {/* Error Message */}
             {error && <p className="text-red-500 text-sm">{error}</p>}
 
-            <button
-              type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white text-lg py-3 rounded-lg font-semibold transition"
-            >
-              Log In
-            </button>
+            {/* 🔥 Spacing above Log In button */}
+            <div className="pt-2">
+              <button
+                type="submit"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white text-lg py-3 rounded-lg font-semibold transition"
+              >
+                Log In
+              </button>
+            </div>
           </form>
         </div>
       </div>
 
-      {/* right screen side: bg image */}
+      {/* Right side: background image */}
       <div className="w-1/2 h-full">
         <img
           src="https://i.etsystatic.com/5872003/r/il/ae6eff/2042612085/il_fullxfull.2042612085_d1ka.jpg"

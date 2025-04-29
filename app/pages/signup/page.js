@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { motion } from "framer-motion"; // make sure this is installed!
+import { motion } from "framer-motion";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -35,7 +35,6 @@ export default function SignupPage() {
         return;
       }
 
-      // Auto-login after signup
       const loginRes = await fetch("/api/auth", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -60,9 +59,8 @@ export default function SignupPage() {
 
   return (
     <div className="flex h-screen">
-      {/* left screen side: signup form */}
+      {/* Left side */}
       <div className="w-1/2 flex flex-col justify-center items-center bg-white p-12 relative">
-        {/* Back Button with Animation */}
         <motion.button
           initial={{ x: -50, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
@@ -78,53 +76,68 @@ export default function SignupPage() {
           <h1 className="text-4xl font-extrabold mb-8 text-gray-800">
             Join the party🍴
           </h1>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="block mb-2 text-lg font-medium">Username</label>
-              <input
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
-                required
-                className="w-full border border-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block mb-2 text-lg font-medium">Email</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                className="w-full border border-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block mb-2 text-lg font-medium">Password</label>
-              <input
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                className="w-full border border-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+
+          {/* ✏️ FORM */}
+          <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+            {/* Grouped input fields - no big gaps between them */}
+            <div className="flex flex-col gap-2">
+              <div>
+                <label className="block mb-1 text-lg font-medium">
+                  Username
+                </label>
+                <input
+                  name="username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  required
+                  className="w-full border border-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-1 text-lg font-medium">Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  className="w-full border border-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block mb-1 text-lg font-medium">
+                  Password
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  className="w-full border border-gray-300 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
             </div>
 
+            {/* Error Message */}
             {error && <p className="text-red-500 text-sm">{error}</p>}
 
-            <button
-              type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white text-lg py-3 rounded-lg font-semibold transition"
-            >
-              Sign Up
-            </button>
+            {/* 🔥 Spacing above Sign Up button */}
+            <div className="pt-2">
+              <button
+                type="submit"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white text-lg py-3 rounded-lg font-semibold transition"
+              >
+                Sign Up
+              </button>
+            </div>
           </form>
         </div>
       </div>
 
-      {/* right screen side: background image */}
+      {/* Right side */}
       <div className="w-1/2 h-full">
         <img
           src="https://cdn.shopify.com/s/files/1/0558/6413/1764/files/Pasta_Illustration_9_1024x1024.jpg?v=1706173460"
