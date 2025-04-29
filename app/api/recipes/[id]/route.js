@@ -3,10 +3,10 @@ import { verifyToken } from "@/app/lib/auth";
 import { query } from "@/app/db/postgres";
 
 export async function GET(request, context) {
-  const { params } = await context;
-  const { id } = await params;
+  const { params } = context;
+  const { id } = params;
 
-  const cookieStore = await cookies();
+  const cookieStore = cookies();
   const token = cookieStore.get("token")?.value;
   let userId = null;
 
@@ -42,14 +42,15 @@ export async function GET(request, context) {
 }
 
 export async function DELETE(request, context) {
-  const { params } = await context;
+  const { params } = context;
   const { id } = params;
 
-  const cookieStore = await cookies();
-  const token = (await cookieStore).get("token")?.value;
+  const cookieStore = cookies();
+  const token = cookieStore.get("token")?.value;
+
   let user;
   try {
-    user = verifyToken(token); // should include user.id and user.is_admin
+    user = verifyToken(token);
   } catch {
     return new Response(JSON.stringify({ error: "Not authenticated" }), {
       status: 401,

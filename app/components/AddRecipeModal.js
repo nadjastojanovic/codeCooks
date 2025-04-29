@@ -16,11 +16,11 @@ import {
   Alert,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { motion } from "framer-motion"; // Animation
+import { motion } from "framer-motion";
 
 const tag_options = ["Breakfast", "Lunch", "Dinner", "Dessert", "Drinks"];
 
-export default function AddRecipeModal({ onClose, onSubmitSuccess }) {
+export default function AddRecipeModal({ onClose, onRecipeAdded }) {
   const [showAlert, setShowAlert] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
@@ -70,7 +70,10 @@ export default function AddRecipeModal({ onClose, onSubmitSuccess }) {
   };
 
   const handleAddStep = () => {
-    setFormData((prev) => ({ ...prev, steps: [...prev.steps, ""] }));
+    setFormData((prev) => ({
+      ...prev,
+      steps: [...prev.steps, ""],
+    }));
     setTimeout(() => {
       const lastInput = stepRefs.current[stepRefs.current.length - 1];
       if (lastInput) lastInput.focus();
@@ -111,7 +114,8 @@ export default function AddRecipeModal({ onClose, onSubmitSuccess }) {
       });
 
       if (response.ok) {
-        onSubmitSuccess();
+        onRecipeAdded();
+        onClose();
       } else {
         console.error("Error submitting recipe");
       }

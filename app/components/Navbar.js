@@ -28,6 +28,7 @@ export default function Navbar({
   showSearch = false,
   searchTerm,
   setSearchTerm,
+  refreshRecipes, // ✅ new prop
 }) {
   const { isAuthenticated, refreshUser } = useAuth();
   const [showAnimation, setShowAnimation] = useState(false);
@@ -45,6 +46,11 @@ export default function Navbar({
     setShowModal(false);
     setShowAnimation(true);
     setTimeout(() => setShowAnimation(false), 2500);
+  };
+
+  const handleRecipeCreated = () => {
+    refreshRecipes(); // ✅ Refresh home page recipes
+    handleCloseModal(); // ✅ Then show the animation
   };
 
   const handleLogout = async () => {
@@ -184,7 +190,7 @@ export default function Navbar({
       {showModal && (
         <AddRecipeModal
           onClose={() => setShowModal(false)}
-          onSubmitSuccess={handleCloseModal}
+          onRecipeAdded={handleRecipeCreated}
         />
       )}
     </>

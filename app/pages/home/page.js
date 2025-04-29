@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 
@@ -25,7 +26,6 @@ export default function Home() {
       const response = await fetch(`/api/recipes${tagParam}`);
       const data = await response.json();
       setRecipes(data);
-      console.log(data);
       setLoading(false);
     } catch (err) {
       console.error("Failed to fetch recipes", err);
@@ -68,10 +68,6 @@ export default function Home() {
     }
   };
 
-  const displayed = recipes.filter((r) =>
-    r.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   const handleDeleteRecipe = async (recipeId) => {
     if (!confirm("Are you sure you want to delete this recipe?")) return;
 
@@ -83,6 +79,10 @@ export default function Home() {
     }
   };
 
+  const displayed = recipes.filter((r) =>
+    r.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   if (loading) {
     return <Loader />;
   }
@@ -93,6 +93,7 @@ export default function Home() {
         showSearch={pathname === "/"}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
+        refreshRecipes={fetchRecipes} // ✅ pass refresh to Navbar for live updates
       />
       <main className="py-10 flex justify-center">
         <div className="w-full max-w-4xl px-4">
@@ -116,6 +117,7 @@ export default function Home() {
 
           <div className="h-8" />
 
+          {/* ✅ MEALDB - Don't remove this section */}
           <div
             className="mt-12 cursor-pointer overflow-hidden h-48 rounded-lg bg-cover bg-center"
             style={{
