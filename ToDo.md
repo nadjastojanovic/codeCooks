@@ -1,10 +1,8 @@
-- fix add recipe page so that you can ckick + for ingredients and + for steps. Rather then manual formatting
-
 becrypt
 
 profile page
 
-tab icon
+tab text to say Code Cooks (I did this but cant get it to work)
 
 ai recipie generator
 
