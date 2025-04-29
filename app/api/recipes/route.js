@@ -51,7 +51,7 @@ export async function GET(request) {
       `;
       if (user) values.push(user.id);
     } else {
-      // Tag filter — FIXED ✅
+      // Tag filter
       qs = `
         SELECT 
           r.id, 
