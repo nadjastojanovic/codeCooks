@@ -1,48 +1,175 @@
-# CSE264 Final Project: Full Stack
-## Due: Friday, May 2, 2025 at 11:59 PM
+<a id="readme-top"></a>
 
-## Trevor Lachman, tal225@lehigh.edu
-## Nada Stojanovic, nas225@lehigh.edu
+![Contributors](https://img.shields.io/badge/Contributors-2-green.svg?style=for-the-badge)
+![Forks](https://img.shields.io/badge/Forks-0-blue.svg?style=for-the-badge)
+![Stars](https://img.shields.io/badge/Stars-0-yellow.svg?style=for-the-badge)
+![Issues](https://img.shields.io/badge/Issues-2-red.svg?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-lavender.svg?style=for-the-badge)
 
-This repo contains the boilerplate code for a full stack application using Express and React.  If you need a database table, please let your instructor know.
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+    <div style="background-color: white; border-radius: 50%; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center;">
+        <img src="public/readme/logo.png" alt="Logo" width="80" height="80" />
+    </div>
+    <h3 align="center">CodeCooks</h3>
 
-### Project Requirements
-Your web application should have/do the following:
+  <p align="center">
+    A full-stack recipe sharing platform for home chefs, foodies, and aspiring cooks,
+    <br />
+    and a CSE264 final project!
+    <br />
+  </p>
+</div>
 
-Your web application must include the following:
-* User Accounts & Roles: Implement different user roles such as user/admin, free/paid, etc.
-* Database: Your application must store and retrieve data from a database of your choice.
-* Interactive UI: Your web app must have an interactive user interface, which can include forms, real-time updates, animations, or other dynamic elements.
-* New Library or Framework: You must use at least one library or framework that was not covered in class.
-* Internal REST API: Your project must have an API layer used to store and retrieve data
-* External REST API: You may include an external REST API (e.g., Reddit API, Spotify API, OpenWeather API, etc.).
+<div align="center">
 
+[![Next][Next.js]][Next-url]
+[![React][React.js]][React-url]
+[![TailwindCSS][TailwindCSS]][TailwindCSS-url]
+[![PostgreSQL][PostgreSQL]][PostgreSQL-url]
 
-### Installation and Running the Project
-
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
-You must have node.js running on your machine. Once you have cloned this project you can run `npm install` to install all the packages for this project. Then running `npm run dev` will run the dev version of this code, which will run this project on localhost:3000 (or at the location specified in the console).
-
-##### .env and Postgres Installation
-
-A Postgres instance has been provided to you. Your username for the database is your 6 character alphanumeric lehigh id. Your password for the database is your 6 character alphanumeric lehigh id followed by '_lehigh'.
-
-You will need to create a .env from the .env.example You can do this by running this line of code in your terminal 
-
-`cp .env.example .env`
-
-Then store your Database credentials in your .env file.
-
-**Note: Never EVER push private information (like credentials) to a Git Repo. We use .env to store this connection information and ensure that git (using .gitignore) never pushes this private information in the repo. Never ever store real credentials in .env.example or anywhere that is not .env as you may push these changes to your git repo.**
+</div>
 
 
-### Grading
-* **Project Functionality** -- **30 points** -- Meets all outlined requirements
-* **Technical Implementation** -- **25 points** -- Clean code, database integration, API Usage
-* **UI/UX & Interactivity** -- **15 points** -- Well-designed, intuitive, and responsive UI
-* **Use of New Tech** -- **10 points** -- Implements a library/framework not covered in class
-* **Project Documentation** -- **10 points** -- Clear README, installation guide, and API setup
-* **Presentation & Demo** -- **10 points** -- Engaging, clear explanation, and live demo
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+      <ul>
+        <li><a href="#built-with">Built With</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#getting-started">Getting Started</a>
+      <ul>
+        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#installation">Installation</a></li>
+      </ul>
+    </li>
+    <li><a href="#usage">Usage</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#contributing">Contributing</a></li>
+    <li><a href="#license">License</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#acknowledgments">Acknowledgments</a></li>
+  </ol>
+</details>
 
-**If code doesn't run/compile you can get no more than a 60. But please write comments and a README to explain what you were trying to do.**
+<!-- ABOUT THE PROJECT -->
+## About The Project
+
+[![Website Screenshot 1][website-screenshot-1]](#todo)
+[![Website Screenshot 2][website-screenshot-2]](#todo)
+
+CodeCooks is a dynamic recipe-sharing web application built with Next.js, designed for users to create, browse, favorite, and manage recipes. It supports authentication, role-based authorization, and showcases recipes in an engaging, interactive way. External API integration also allows users to explore a surprise recipe each day.
+
+### Key features
+* <b>User Accounts & Roles</b> - users vs. admin
+* <b>Social element</b> - in addition to creating and deleting recipes, authenticated users can also leave comments and favorite recipes to show their support!
+* <b>Recipe search</b> - search bar and tag filtering system make finding a recipe quick and easy! 
+* <b>Interactive UI</b> - real-time updates, animations, and other dynamic elements.
+
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- GETTING STARTED -->
+## Getting Started
+
+To get a local copy up and running follow these steps.
+
+### 1. Clone the repo
+
+```
+git clone https://github.com/TrevorAL/finalproject-nextjs-TrevorAL.git
+```
+
+### 2. Dependencies
+
+You must have node.js running on your machine.
+
+```
+cd finalproject-nextjs-TrevorAL
+npm install
+```
+
+### 3. Configure environment variables
+
+Create a new file in the root of the repository called `.env`, and copy the contents of `.env.example` into `.env`. Update `.env` with your database credentials.
+
+### 4. Run the development server
+```
+npm run dev
+```
+
+### 5. Check it out!
+
+Visit <a href="http://localhost:3000/" target="_">http://localhost:3000</a> in your browser to view the app in action. 
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- ROADMAP -->
+## Roadmap
+
+- [x] In-place update of recipe grid after user adds recipe
+- [x] Automatically log in and redirect to /home when user signs up
+- [ ] Enable image upload when adding recipe
+- [ ] Allow custom recipe tags
+- [ ] Allow users to reply to comments and start comment threads
+- [ ] Star rating system for recipes
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- CONTRIBUTING -->
+### Contributors:
+
+<a href="https://github.com/TrevorAL/finalproject-nextjs-TrevorAL/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=TrevorAL/finalproject-nextjs-TrevorAL" />
+</a>
+
+Nada Stojanovic - nas225@lehigh.edu <br/>
+Trevor Lachman - tal225@lehigh.edu
+
+Project Link: [https://github.com/TrevorAL/finalproject-nextjs-TrevorAL](https://github.com/TrevorAL/finalproject-nextjs-TrevorAL)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- LICENSE -->
+## License
+
+Distributed under the MIT License. See `LICENSE.txt` for more information.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- ACKNOWLEDGMENTS -->
+## Acknowledgments
+
+Libraries used:
+
+* [MaterialUI](https://www.npmjs.com/package/@mui/material)
+* [MaterialUI Icons](https://www.npmjs.com/package/@mui/icons-material)
+* [framer-motion](https://www.npmjs.com/package/framer-motion)
+* [lottie-react](https://www.npmjs.com/package/lottie-react)
+* [html2canvas](https://www.npmjs.com/package/html2canvas)
+* [jsPDF](https://www.npmjs.com/package/jspdf)
+* [react-photo-view](https://www.npmjs.com/package/react-photo-view)
+
+External API used:
+* [TheMealDB](https://www.themealdb.com/)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- MARKDOWN LINKS & IMAGES -->
+[website-screenshot-1]: public/readme/screenshot-1.png
+[website-screenshot-2]: public/readme/screenshot-2.png
+
+[Next.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white/
+[Next-url]: https://nextjs.org/
+[React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB/
+[React-url]: https://reactjs.org/
+[TailwindCSS]: https://img.shields.io/badge/tailwindcss-paleturquoise?style=for-the-badge&logo=tailwindcss&logoColor=61DAFB/
+[TailwindCSS-url]: https://tailwindcss.com/
+[PostgreSQL]: https://img.shields.io/badge/postgresql-teal?style=for-the-badge&logo=postgresql&logoColor=61DAFB
+[PostgreSQL-url]: https://www.postgresql.org/
