@@ -11,7 +11,6 @@ import {
   Button,
   Typography,
   Stack,
-  NoSsr,
   Backdrop,
   Card,
   TextField,
@@ -20,7 +19,8 @@ import {
 } from "@mui/material";
 import { useRouter, usePathname } from "next/navigation";
 
-import Lottie from "lottie-react";
+import dynamic from "next/dynamic";
+const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
 import foodAnimation from "../../public/food.json";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 
@@ -28,17 +28,19 @@ export default function Navbar({
   showSearch = false,
   searchTerm,
   setSearchTerm,
-  refreshRecipes, // ✅ new prop
+  refreshRecipes,
 }) {
   const { isAuthenticated, refreshUser } = useAuth();
   const [showAnimation, setShowAnimation] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [hasMounted, setHasMounted] = useState(false);
 
   const pathname = usePathname();
   const router = useRouter();
-  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
+    setHasMounted(true);
     refreshUser();
   }, []);
 
@@ -49,8 +51,8 @@ export default function Navbar({
   };
 
   const handleRecipeCreated = () => {
-    refreshRecipes(); // ✅ Refresh home page recipes
-    handleCloseModal(); // ✅ Then show the animation
+    refreshRecipes();
+    handleCloseModal();
   };
 
   const handleLogout = async () => {
@@ -62,58 +64,56 @@ export default function Navbar({
 
   return (
     <>
-      <NoSsr>
-        <AppBar position="static" color="default" elevation={1}>
-          <Toolbar sx={{ justifyContent: "space-between" }}>
-            <Typography
-              variant="h6"
-              component={Link}
-              href="/"
-              sx={{ textDecoration: "none", color: "inherit" }}
-            >
-              CodeCooks
-            </Typography>
+      <AppBar position="static" color="default" elevation={1}>
+        <Toolbar sx={{ justifyContent: "space-between" }}>
+          <Typography
+            variant="h6"
+            component={Link}
+            href="/"
+            sx={{ textDecoration: "none", color: "inherit" }}
+          >
+            CodeCooks
+          </Typography>
 
-            {showSearch && (
-              <TextField
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search recipes…"
-                size="small"
-                sx={{ width: 300 }}
-              />
+          {showSearch && (
+            <TextField
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search recipes…"
+              size="small"
+              sx={{ width: 300 }}
+            />
+          )}
+
+          <Stack direction="row" spacing={2}>
+            {isAuthenticated ? (
+              <>
+                <Button variant="contained" onClick={() => setShowModal(true)}>
+                  Add Recipe
+                </Button>
+                <IconButton onClick={() => setShowProfileMenu(true)}>
+                  <AccountCircleIcon fontSize="large" />
+                </IconButton>
+              </>
+            ) : (
+              <>
+                <Button component={Link} href="/login">
+                  Log In
+                </Button>
+                <Button component={Link} href="/signup">
+                  Sign Up
+                </Button>
+              </>
             )}
+          </Stack>
+        </Toolbar>
+      </AppBar>
 
-            <Stack direction="row" spacing={2}>
-              {isAuthenticated && (
-                <>
-                  <Button
-                    variant="contained"
-                    onClick={() => setShowModal(true)}
-                  >
-                    Add Recipe
-                  </Button>
-                  <IconButton onClick={() => setShowProfileMenu(true)}>
-                    <AccountCircleIcon fontSize="large" />
-                  </IconButton>
-                </>
-              )}
-              {!isAuthenticated && (
-                <>
-                  <Button component={Link} href="/login">
-                    Log In
-                  </Button>
-                  <Button component={Link} href="/signup">
-                    Sign Up
-                  </Button>
-                </>
-              )}
-            </Stack>
-          </Toolbar>
-        </AppBar>
-
+      {/* Only render animation after mount to avoid hydration mismatch (was throwing error)*/}
+      {/* Error: A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. */}
+      {hasMounted && showAnimation && (
         <Backdrop
-          open={showAnimation}
+          open
           sx={{ zIndex: 1000, backgroundColor: "rgba(0,0,0,0.25)" }}
         >
           <Card
@@ -134,9 +134,8 @@ export default function Navbar({
             </Typography>
           </Card>
         </Backdrop>
-      </NoSsr>
+      )}
 
-      {/* Drawer Profile Menu */}
       <Drawer
         anchor="right"
         open={showProfileMenu}

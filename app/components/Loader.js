@@ -1,8 +1,19 @@
 "use client";
-import Lottie from "lottie-react";
+
+import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
 import loadingAnimation from "../../public/loading.json";
 
 export default function Loader({ message = "Loading…" }) {
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  if (!hasMounted) return null;
+
   return (
     <div
       className="

@@ -1,27 +1,24 @@
-"use client";
-
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from "./context/authContext";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const geistSans = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
+const geistMono = Geist_Mono({
   subsets: ["latin"],
+  variable: "--font-geist-mono",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+export const metadata = {
+  title: "CodeCooks",
+  description: "AI-powered recipe platform",
+};
 
 export default function RootLayout({ children }) {
   return (
-    <AuthProvider>
-      <html lang="en">
-        <body className={`${geistSans.variable} ${geistMono.variable}`}>
-          {children}
-        </body>
-      </html>
-    </AuthProvider>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className="bg-white text-black font-sans">
+        <AuthProvider>{children}</AuthProvider>
+      </body>
+    </html>
   );
 }
