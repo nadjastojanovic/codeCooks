@@ -93,7 +93,7 @@ export default function Home() {
         showSearch={pathname === "/"}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
-        refreshRecipes={fetchRecipes} // ✅ pass refresh to Navbar for live updates
+        refreshRecipes={fetchRecipes}
       />
       <main className="py-10 flex justify-center">
         <div className="w-full max-w-4xl px-4">
