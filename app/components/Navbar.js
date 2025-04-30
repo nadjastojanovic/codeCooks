@@ -10,19 +10,26 @@ import {
   Toolbar,
   Button,
   Typography,
-  Stack,
-  Backdrop,
-  Card,
+  IconButton,
   TextField,
   Drawer,
-  IconButton,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Divider,
+  useTheme,
+  useMediaQuery,
+  Backdrop,
+  Card,
+  Stack,
 } from "@mui/material";
-import { useRouter, usePathname } from "next/navigation";
-
+import MenuIcon from "@mui/icons-material/Menu";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import dynamic from "next/dynamic";
 const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
 import foodAnimation from "../../public/food.json";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import { useRouter, usePathname } from "next/navigation";
 
 export default function Navbar({
   showSearch = false,
@@ -31,99 +38,167 @@ export default function Navbar({
   refreshRecipes,
 }) {
   const { isAuthenticated, refreshUser } = useAuth();
+  const theme = useTheme();
+  const isSmUp = useMediaQuery(theme.breakpoints.up("sm"));
   const [showAnimation, setShowAnimation] = useState(false);
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showDrawer, setShowDrawer] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [hasMounted, setHasMounted] = useState(false);
 
-  const pathname = usePathname();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     setHasMounted(true);
     refreshUser();
   }, []);
 
-  const handleCloseModal = () => {
+  const handleRecipeCreated = () => {
+    refreshRecipes?.();
     setShowModal(false);
     setShowAnimation(true);
     setTimeout(() => setShowAnimation(false), 2500);
-  };
-
-  const handleRecipeCreated = () => {
-    refreshRecipes();
-    handleCloseModal();
   };
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
     await refreshUser();
     router.push("/");
-    setShowProfileMenu(false);
+    setShowDrawer(false);
   };
+
+  // Drawer contents
+  const drawerItems = (
+    <List sx={{ width: 250 }}>
+      {showSearch && (
+        <ListItem>
+          <TextField
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search recipes…"
+            size="small"
+            fullWidth
+          />
+        </ListItem>
+      )}
+      {isAuthenticated && (
+        <ListItem disablePadding>
+          <ListItemButton onClick={() => { setShowModal(true); setShowDrawer(false); }}>
+            <ListItemText primary="Add Recipe" />
+          </ListItemButton>
+        </ListItem>
+      )}
+      <Divider />
+      {isAuthenticated ? (
+        <>
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => { router.push("/favorites"); setShowDrawer(false); }}>
+              <ListItemText primary="My Favorites" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => { router.push("/my-recipes"); setShowDrawer(false); }}>
+              <ListItemText primary="My Recipes" />
+            </ListItemButton>
+          </ListItem>
+          <Divider />
+          <ListItem disablePadding>
+            <ListItemButton onClick={handleLogout}>
+              <ListItemText primary="Log Out" />
+            </ListItemButton>
+          </ListItem>
+        </>
+      ) : (
+        <>
+          <ListItem disablePadding>
+            <ListItemButton component={Link} href="/login" onClick={() => setShowDrawer(false)}>
+              <ListItemText primary="Log In" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton component={Link} href="/signup" onClick={() => setShowDrawer(false)}>
+              <ListItemText primary="Sign Up" />
+            </ListItemButton>
+          </ListItem>
+        </>
+      )}
+    </List>
+  );
 
   return (
     <>
       <AppBar position="static" color="default" elevation={1}>
-        <Toolbar sx={{ justifyContent: "space-between" }}>
+        <Toolbar>
+          {/* logo/title */}
           <Typography
             variant="h6"
             component={Link}
             href="/"
-            sx={{ textDecoration: "none", color: "inherit" }}
+            sx={{ flexGrow: 1, textDecoration: "none", color: "inherit" }}
           >
             CodeCooks
           </Typography>
 
-          {showSearch && (
-            <TextField
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search recipes…"
-              size="small"
-              sx={{ width: 300 }}
-            />
-          )}
+          {isSmUp ? (
+            // full desktop toolbar
+            <Stack direction="row" spacing={2} alignItems="center">
+              {showSearch && (
+                <TextField
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search recipes…"
+                  size="small"
+                  sx={{ width: 300 }}
+                />
+              )}
 
-          <Stack direction="row" spacing={2}>
-            {isAuthenticated ? (
-              <>
-                <Button variant="contained" onClick={() => setShowModal(true)}>
-                  Add Recipe
-                </Button>
-                <IconButton onClick={() => setShowProfileMenu(true)}>
-                  <AccountCircleIcon fontSize="large" />
-                </IconButton>
-              </>
-            ) : (
-              <>
-                <Button component={Link} href="/login">
-                  Log In
-                </Button>
-                <Button component={Link} href="/signup">
-                  Sign Up
-                </Button>
-              </>
-            )}
-          </Stack>
+              {isAuthenticated ? (
+                <>
+                  <Button variant="contained" onClick={() => setShowModal(true)}>
+                    Add Recipe
+                  </Button>
+                  <IconButton onClick={() => setShowDrawer(true)}>
+                    <AccountCircleIcon fontSize="large" />
+                  </IconButton>
+                </>
+              ) : (
+                <>
+                  <Button component={Link} href="/login">
+                    Log In
+                  </Button>
+                  <Button component={Link} href="/signup">
+                    Sign Up
+                  </Button>
+                </>
+              )}
+            </Stack>
+          ) : (
+            // mobile hamburger
+            <IconButton onClick={() => setShowDrawer(true)}>
+              <MenuIcon />
+            </IconButton>
+          )}
         </Toolbar>
       </AppBar>
 
-      {/* Only render animation after mount to avoid hydration mismatch (was throwing error)*/}
-      {/* Error: A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. */}
+      {/* Drawer for both mobile & desktop profile menu */}
+      <Drawer
+        anchor="right"
+        open={showDrawer}
+        onClose={() => setShowDrawer(false)}
+      >
+        {drawerItems}
+      </Drawer>
+
+      {/* Add recipe modal */}
+      {showModal && (
+        <AddRecipeModal onClose={handleRecipeCreated} />
+      )}
+
+      {/* Cooking animation */}
       {hasMounted && showAnimation && (
-        <Backdrop
-          open
-          sx={{ zIndex: 1000, backgroundColor: "rgba(0,0,0,0.25)" }}
-        >
-          <Card
-            sx={{
-              p: 2,
-              display: "flex",
-              alignItems: "center",
-              flexDirection: "column",
-            }}
-          >
+        <Backdrop open sx={{ zIndex: 2000 }}>
+          <Card sx={{ p: 3, textAlign: "center" }}>
             <Lottie
               animationData={foodAnimation}
               loop
@@ -135,64 +210,6 @@ export default function Navbar({
           </Card>
         </Backdrop>
       )}
-
-      <Drawer
-        anchor="right"
-        open={showProfileMenu}
-        onClose={() => setShowProfileMenu(false)}
-        PaperProps={{
-          sx: {
-            width: 250,
-            backgroundColor: "white",
-            p: 3,
-            display: "flex",
-            flexDirection: "column",
-            gap: 2,
-          },
-        }}
-        ModalProps={{
-          BackdropProps: {
-            style: { backgroundColor: "rgba(0, 0, 0, 0.15)" },
-          },
-        }}
-      >
-        <Button
-          fullWidth
-          variant="text"
-          onClick={() => {
-            router.push("/favorites");
-            setShowProfileMenu(false);
-          }}
-        >
-          My Favorites
-        </Button>
-        <Button
-          fullWidth
-          variant="text"
-          onClick={() => {
-            router.push("/my-recipes");
-            setShowProfileMenu(false);
-          }}
-        >
-          My Recipes
-        </Button>
-        <Button
-          fullWidth
-          variant="outlined"
-          color="error"
-          onClick={handleLogout}
-        >
-          Log Out
-        </Button>
-      </Drawer>
-
-      {showModal && (
-        <AddRecipeModal
-          onClose={() => setShowModal(false)}
-          onRecipeAdded={handleRecipeCreated}
-        />
-      )}
     </>
   );
 }
-
