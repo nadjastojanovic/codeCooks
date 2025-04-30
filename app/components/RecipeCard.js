@@ -58,7 +58,7 @@ export default function RecipeCard({
           }}
         />
         <CardContent>
-          <Typography gutterBottom variant="h6" component="div">
+          <Typography sx={{ xs: "0.65rem", sm: "0.75rem", ml: "1rem" }} gutterBottom variant="h6" component="h2">
             {recipe.title}
           </Typography>
         </CardContent>
@@ -75,6 +75,7 @@ export default function RecipeCard({
             mb: 2,
             textTransform: "none",
             opacity: isAuthenticated ? 1 : 0.5,
+            fontSize: { xs: "0.65rem", sm: "0.75rem", ml: "1rem" },
           }}
           onClick={handleFavoriteClick}
         >
@@ -94,6 +95,7 @@ export default function RecipeCard({
               style={{
                 color: "white",
                 fontWeight: "bold",
+                fontSize: { xs: "0.65rem", sm: "0.75rem", ml: "1rem" },
                 padding: "6px 12px",
               }}
             />
