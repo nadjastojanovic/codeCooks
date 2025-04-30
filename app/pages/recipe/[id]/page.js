@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Button, IconButton, Stack } from "@mui/material";
 import { PhotoProvider, PhotoView } from "react-photo-view";
-import CommentItem from "@/app/components/CommentItem";
+import CommentItem from "../../../components/CommentItem";
 import Navbar from "../../../components/Navbar";
 import Loader from "../../../components/Loader";
 import { useAuth } from "../../../context/authContext";
