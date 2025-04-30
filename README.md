@@ -5,7 +5,7 @@
 ![Contributors](https://img.shields.io/badge/Contributors-2-green.svg?style=for-the-badge)
 ![Forks](https://img.shields.io/badge/Forks-0-blue.svg?style=for-the-badge)
 ![Stars](https://img.shields.io/badge/Stars-0-yellow.svg?style=for-the-badge)
-![Issues](https://img.shields.io/badge/Issues-2-red.svg?style=for-the-badge)
+![Issues](https://img.shields.io/badge/Issues-0-red.svg?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-lavender.svg?style=for-the-badge)
 
 </div>
