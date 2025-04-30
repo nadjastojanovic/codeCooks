@@ -14,7 +14,7 @@
 <br />
 <div align="center">
     <div style="background-color: white; border-radius: 50%; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center;">
-        <img src="public/readme/logo.png" alt="Logo" width="80" height="80" />
+        <img src="public/readme/logo-circle.png" alt="Logo" width="80" height="80" />
     </div>
     <h3 align="center">CodeCooks</h3>
 
