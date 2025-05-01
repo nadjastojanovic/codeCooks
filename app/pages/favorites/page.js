@@ -59,10 +59,10 @@ export default function FavoritesPage() {
     }
   };
 
-  // search bar and tag filter 
+  // search bar and tag filter
   const displayedRecipes = recipes
     .filter((r) => r.title.toLowerCase().includes(searchTerm.toLowerCase()))
-    .filter((r) => selectedTag === "All" || r.tags?.includes(selectedTag)); // ✅ pure filtering
+    .filter((r) => selectedTag === "All" || r.tags?.includes(selectedTag)); // pure filtering
 
   if (loading) {
     return <Loader />;
