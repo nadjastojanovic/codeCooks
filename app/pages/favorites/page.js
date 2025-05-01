@@ -1,5 +1,7 @@
 "use client";
+
 import { useEffect, useState } from "react";
+
 import { useRouter, usePathname } from "next/navigation";
 
 import Navbar from "../../components/Navbar";
@@ -19,7 +21,7 @@ export default function FavoritesPage() {
   const loadFavorites = async () => {
     const res = await fetch("/api/favorites");
     const data = await res.json();
-    setRecipes(data); // ✅ store the raw recipes directly, untouched
+    setRecipes(data);
     setLoading(false);
   };
 
@@ -36,10 +38,10 @@ export default function FavoritesPage() {
       });
 
       if (isFavorited) {
-        // If unfavoriting, remove from favorites
+        // if unfavoriting, remove from favorites
         setRecipes((prev) => prev.filter((r) => r.id !== recipeId));
       } else {
-        // If favoriting (should not happen in favorites page), or stay favorited
+        // if favoriting (should not happen in favorites page), or stay favorited
         setRecipes((prev) =>
           prev.map((r) =>
             r.id === recipeId
@@ -57,7 +59,7 @@ export default function FavoritesPage() {
     }
   };
 
-  // ✅ Correct filtering logic: don't modify recipe.tags
+  // search bar and tag filter 
   const displayedRecipes = recipes
     .filter((r) => r.title.toLowerCase().includes(searchTerm.toLowerCase()))
     .filter((r) => selectedTag === "All" || r.tags?.includes(selectedTag)); // ✅ pure filtering

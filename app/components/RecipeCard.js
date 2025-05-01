@@ -1,5 +1,5 @@
 "use client";
-import Link from "next/link";
+
 import {
   Card,
   CardMedia,
@@ -8,8 +8,11 @@ import {
   Button,
   Chip,
 } from "@mui/material";
-import { useAuth } from "../context/authContext";
 import DeleteIcon from "@mui/icons-material/Delete";
+
+import Link from "next/link";
+
+import { useAuth } from "../context/authContext";
 
 export default function RecipeCard({
   recipe,
@@ -17,14 +20,15 @@ export default function RecipeCard({
   onDeleteRecipe,
 }) {
   const { user, isAuthenticated } = useAuth();
-  console.log("In RecipeCard:", user, isAuthenticated);
 
-  const canDelete =
-    isAuthenticated && user && (user.id === recipe.author_id || user.is_admin);
+  // only can delete recipe if:
+  //    a) authenticated user AND it's their own recipe
+  //    b) admin
+  const canDelete = isAuthenticated && user && (user.id === recipe.author_id || user.is_admin);
 
   const handleFavoriteClick = () => {
     if (!isAuthenticated) {
-      alert("Please log in to favorite recipes.");
+      alert("Please log in to favorite recipes."); // favorite button should be greyed out if unauth.
       return;
     }
     onToggleFavorite(recipe.id, recipe.isFavorited);
@@ -84,7 +88,6 @@ export default function RecipeCard({
         </Button>
       </div>
 
-      {/* Tags */}
       {recipe.tags && recipe.tags.length > 0 && (
         <div className="flex flex-wrap justify-center gap-2 p-2">
           {recipe.tags.map((tag, index) => (

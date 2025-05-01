@@ -1,9 +1,6 @@
 "use client";
 
-import { useAuth } from "../context/authContext";
 import { useEffect, useState } from "react";
-import AddRecipeModal from "./AddRecipeModal";
-import Link from "next/link";
 
 import {
   AppBar,
@@ -26,10 +23,17 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+// lottie files animations (new library)
 import dynamic from "next/dynamic";
 const Lottie = dynamic(() => import("lottie-react"), { ssr: false });
-import foodAnimation from "../../public/food.json";
-import { useRouter, usePathname } from "next/navigation";
+import foodAnimation from "../../public/food.json"; // stored the food animation in public
+
+import AddRecipeModal from "./AddRecipeModal";
+import { useAuth } from "../context/authContext";
 
 export default function Navbar({
   showSearch = false,
@@ -38,15 +42,16 @@ export default function Navbar({
   refreshRecipes,
 }) {
   const { isAuthenticated, refreshUser } = useAuth();
-  const theme = useTheme();
-  const isSmUp = useMediaQuery(theme.breakpoints.up("sm"));
   const [showAnimation, setShowAnimation] = useState(false);
   const [showDrawer, setShowDrawer] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [hasMounted, setHasMounted] = useState(false);
 
+  // responsive
+  const theme = useTheme();
+  const isSmUp = useMediaQuery(theme.breakpoints.up("sm"));
+
   const router = useRouter();
-  const pathname = usePathname();
 
   useEffect(() => {
     setHasMounted(true);
@@ -54,20 +59,20 @@ export default function Navbar({
   }, []);
 
   const handleRecipeCreated = () => {
-    refreshRecipes?.();
-    setShowModal(false);
-    setShowAnimation(true);
-    setTimeout(() => setShowAnimation(false), 2500);
+    refreshRecipes?.(); // after they add new recipe, it should update the grid in place
+    setShowModal(false); // hide the add recipe popup
+    setShowAnimation(true); // show foodie animation
+    setTimeout(() => setShowAnimation(false), 2500); // for 2500ms
   };
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
     await refreshUser();
-    router.push("/");
-    setShowDrawer(false);
+    router.push("/"); // reroute
+    setShowDrawer(false); // can hide entirely bc unauth. users don't have my recipes or my favorites pages
   };
 
-  // Drawer contents
+  /* -- DRAWER MENU -- */
   const drawerItems = (
     <List sx={{ width: 250 }}>
       {showSearch && (
@@ -129,7 +134,6 @@ export default function Navbar({
     <>
       <AppBar position="static" color="default" elevation={1}>
         <Toolbar>
-          {/* logo/title */}
           <Typography
             variant="h6"
             component={Link}
@@ -140,9 +144,10 @@ export default function Navbar({
           </Typography>
 
           {isSmUp ? (
-            // full desktop toolbar
+            // large screen sizes:
             <Stack direction="row" spacing={2} alignItems="center">
               {showSearch && (
+                // allow users to search (only by recipe name for now, should probably also match for words in description, ingredients and steps)
                 <TextField
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -173,7 +178,7 @@ export default function Navbar({
               )}
             </Stack>
           ) : (
-            // mobile hamburger
+            // small screen sizes (switch to hamburder menu for search, add recipe and drawer menu)
             <IconButton onClick={() => setShowDrawer(true)}>
               <MenuIcon />
             </IconButton>
@@ -181,7 +186,7 @@ export default function Navbar({
         </Toolbar>
       </AppBar>
 
-      {/* Drawer for both mobile & desktop profile menu */}
+      {/* -- DRAWER MENU -- */}
       <Drawer
         anchor="right"
         open={showDrawer}
@@ -190,12 +195,11 @@ export default function Navbar({
         {drawerItems}
       </Drawer>
 
-      {/* Add recipe modal */}
       {showModal && (
         <AddRecipeModal onClose={handleRecipeCreated} />
       )}
 
-      {/* Cooking animation */}
+      {/* animation after submitting a new recipe successfully */}
       {hasMounted && showAnimation && (
         <Backdrop open sx={{ zIndex: 2000 }}>
           <Card sx={{ p: 3, textAlign: "center" }}>

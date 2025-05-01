@@ -1,8 +1,11 @@
 "use client";
+
 import { useState } from "react";
+
 import { Button } from "@mui/material";
-import { useAuth } from "../context/authContext";
 import DeleteIcon from "@mui/icons-material/Delete";
+
+import { useAuth } from "../context/authContext";
 
 export default function CommentItem({
   id,
@@ -14,21 +17,20 @@ export default function CommentItem({
   onDeleted,
 }) {
   const { user, isAuthenticated } = useAuth();
-  console.log("In RecipeCard:", user, isAuthenticated);
-
   const [likes, setLikes] = useState(initialLikes);
 
-  const handleDelete = async () => {
+  const handleDelete = async () => { // delete comment
     if (!confirm("Delete this comment?")) return;
     await fetch(`/api/comments/${id}`, { method: "DELETE" });
     onDeleted(id);
   };
 
-  const handleLike = async () => {
+  const handleLike = async () => { // upvote/like comment
     await fetch(`/api/comments/${id}`, { method: "PATCH" });
     setLikes(likes + 1);
   };
 
+  // nice date formatting
   const date = new Date(created_at).toLocaleString("en-US", {
     month: "short",
     day: "numeric",
@@ -37,15 +39,17 @@ export default function CommentItem({
     minute: "numeric",
   });
 
-  const canDelete =
-    isAuthenticated && user && (user.id === user_id || user.is_admin);
+  // only can delete comment if:
+  //    a) authenticated user AND it's their own comment
+  //    b) admin
+  const canDelete = isAuthenticated && user && (user.id === user_id || user.is_admin);
 
   return (
     <div className="border-b pb-4 mb-4">
       <div className="flex justify-between items-center">
         <span className="text-sm text-gray-500">{username}</span>
 
-        {/* Date + Trashcan side-by-side */}
+        {/* comment creation date and delete button */}
         <div className="flex items-center gap-2">
           <span className="text-sm text-gray-500">{date}</span>
           {canDelete && (
@@ -60,6 +64,7 @@ export default function CommentItem({
         </div>
       </div>
 
+      {/* comment likes (can only be seen by authenticated users) */}
       <div className="flex justify-between items-center mt-2">
         <p className="text-gray-800">{content}</p>
         {isAuthenticated && (
