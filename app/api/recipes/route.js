@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 import { verifyToken } from "@/app/lib/auth";
 import { query } from "@/app/db/postgres";
 
-// route to GET recipes
+// GET recipes - is there a simpler way to do this
 export async function GET(request) {
   try {
     const cookieStore = await cookies();
@@ -29,17 +29,10 @@ export async function GET(request) {
       ? `LEFT JOIN favorites_codecooks f1 ON r.id = f1.recipe_id AND f1.user_id = $1`
       : "";
 
-    if (!tag || tag === "All") {
-      // No tag filter
+    if (!tag || tag === "All") { // no tag filter
       qs = `
-        SELECT 
-          r.id, 
-          r.title, 
-          r.image_url, 
-          r.author_id, 
-          ARRAY_AGG(DISTINCT t.name) AS tags,
-          ${selectIsFavorited}
-          COUNT(DISTINCT f2.user_id) AS favorite_count
+        SELECT r.id, r.title, r.image_url, r.author_id, ARRAY_AGG(DISTINCT t.name) AS tags, ${selectIsFavorited}
+        COUNT(DISTINCT f2.user_id) AS favorite_count
         FROM recipes_codecooks r
         LEFT JOIN recipe_tags_codecooks rt ON r.id = rt.recipe_id
         LEFT JOIN tags_codecooks t ON rt.tag_id = t.id
@@ -50,17 +43,10 @@ export async function GET(request) {
         }
       `;
       if (user) values.push(user.id);
-    } else {
-      // Tag filter
+    } else { // tag filter
       qs = `
-        SELECT 
-          r.id, 
-          r.title, 
-          r.image_url, 
-          r.author_id, 
-          ARRAY_AGG(DISTINCT t.name) AS tags,
-          ${selectIsFavorited}
-          COUNT(DISTINCT f2.user_id) AS favorite_count
+        SELECT r.id, r.title, r.image_url, r.author_id, ARRAY_AGG(DISTINCT t.name) AS tags, ${selectIsFavorited}
+        COUNT(DISTINCT f2.user_id) AS favorite_count
         FROM recipes_codecooks r
         LEFT JOIN recipe_tags_codecooks rt ON r.id = rt.recipe_id
         LEFT JOIN tags_codecooks t ON rt.tag_id = t.id
@@ -96,7 +82,7 @@ export async function GET(request) {
   }
 }
 
-// route to ADD RECIPE
+// POST recipe
 export async function POST(request) {
   try {
     const cookieStore = await cookies();
@@ -107,27 +93,25 @@ export async function POST(request) {
     const now = new Date();
 
     const qs1 = `
-      INSERT INTO recipes_codecooks (
-        author_id, title, description, ingredients, steps, image_url, favorite_count, created_at
-      ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8
-      ) RETURNING id
+      INSERT INTO recipes_codecooks (author_id, title, description, ingredients, steps, image_url, favorite_count, created_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id
     `;
 
     const values = [
       user.id,
       body.title,
-      body.description || "",
+      body.description || "", // optional
       JSON.stringify(body.ingredients),
       JSON.stringify(body.steps),
       body.image_url,
-      0,
-      now.toISOString(),
+      0, // favorite count = 0 at creation
+      now.toISOString(), // creation date
     ];
 
     const res = await query(qs1, values);
     const recipeId = res.rows[0].id;
 
+    // when recipe is added, tags should be inserted into tags table
     for (const tag of body.tags) {
       const tagQuery = `SELECT id FROM tags_codecooks WHERE name = $1`;
       const tagRes = await query(tagQuery, [tag]);

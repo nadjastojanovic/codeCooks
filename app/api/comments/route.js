@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { verifyToken } from "@/app/lib/auth";
 import { query } from "@/app/db/postgres";
 
+// get all comments on a recipe
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const recipeId = searchParams.get("recipeId");
@@ -12,6 +13,8 @@ export async function GET(request) {
     );
   }
 
+  // need to join comments and users tables on user ID (to get author name for displaying the comment)
+  // and select all comments where recipe_id matches the one provided in the request, and sort by date
   const text = `
     SELECT c.*, u.username
     FROM comments_codecooks c
@@ -25,8 +28,8 @@ export async function GET(request) {
   });
 }
 
+// add a comment (only for auth. users)
 export async function POST(request) {
-  // only authenticated users
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
   const user = verifyToken(token);
@@ -46,10 +49,8 @@ export async function POST(request) {
   }
 
   const text = `
-    INSERT INTO comments_codecooks
-      (user_id, recipe_id, content, likes, created_at)
-    VALUES
-      ($1, $2, $3, 0, NOW())
+    INSERT INTO comments_codecooks (user_id, recipe_id, content, likes, created_at)
+    VALUES ($1, $2, $3, 0, NOW())
     RETURNING id, user_id, recipe_id, content, likes, created_at
   `;
   const res = await query(text, [user.id, recipeId, content.trim()]);
@@ -59,7 +60,8 @@ export async function POST(request) {
     "SELECT username FROM users_codecooks WHERE id = $1",
     [user.id]
   );
-
+ 
+  // in order to display user name on the comment, need to get it from users table
   row.username = ures.rows[0].username;
 
   return new Response(JSON.stringify(row), {
