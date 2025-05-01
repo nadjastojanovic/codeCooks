@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { verifyToken } from "@/app/lib/auth";
 import { query } from "@/app/db/postgres";
 
+// get all recipes authored by currently authenticated users
 export async function GET() {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
@@ -14,11 +15,7 @@ export async function GET() {
   }
 
   const text = `
-    SELECT 
-      r.id, 
-      r.title, 
-      r.image_url,
-      ARRAY_AGG(DISTINCT t.name) AS tags,
+    SELECT r.id, r.title, r.image_url, ARRAY_AGG(DISTINCT t.name) AS tags,
       COUNT(DISTINCT f.user_id) AS favorite_count,
       CASE WHEN f2.user_id IS NOT NULL THEN true ELSE false END AS "isFavorited"
     FROM recipes_codecooks r

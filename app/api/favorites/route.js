@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { verifyToken } from "@/app/lib/auth";
 import { query } from "@/app/db/postgres";
 
+// favorite a recipe
 export async function POST(req) {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
@@ -46,11 +47,7 @@ export async function GET() {
 
   const res = await query(
     `
-      SELECT 
-        r.id,
-        r.title,
-        r.image_url,
-        ARRAY_AGG(DISTINCT t.name) AS tags,
+      SELECT r.id, r.title, r.image_url, ARRAY_AGG(DISTINCT t.name) AS tags,
         COUNT(DISTINCT f2.user_id) AS favorite_count,
         TRUE AS "isFavorited"
       FROM recipes_codecooks r

@@ -1,4 +1,4 @@
-// external api requierement
+// random recipe from TheMealDB (external API)
 export async function GET() {
     try {
       const res = await fetch("https://www.themealdb.com/api/json/v1/1/random.php");
@@ -6,7 +6,6 @@ export async function GET() {
       const { meals } = await res.json();
       const m = meals[0];
   
-      // build a simpler shape
       const ingredients = [];
       for (let i = 1; i <= 20; i++) {
         const ing = m[`strIngredient${i}`]?.trim();

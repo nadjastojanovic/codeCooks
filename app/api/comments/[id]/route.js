@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { verifyToken } from "@/app/lib/auth";
 import { query } from "@/app/db/postgres";
 
+// delete comment
 export async function DELETE(request, { params }) {
   const { id } = params;
 
@@ -30,8 +31,8 @@ export async function DELETE(request, { params }) {
   return new Response(null, { status: 204 });
 }
 
+// increment likes
 export async function PATCH(request, { params }) {
-  // increment likes
   const { id } = await params;
   await query("UPDATE comments_codecooks SET likes = likes + 1 WHERE id = $1", [
     id,
