@@ -67,12 +67,24 @@ export default function MyRecipesPage() {
     return <Loader />;
   }
 
+  const handleDeleteRecipe = async (recipeId) => {
+    if (!confirm("Are you sure you want to delete this recipe?")) return;
+
+    try {
+      await fetch(`/api/recipes/${recipeId}`, { method: "DELETE" });
+      setRecipes((prev) => prev.filter((r) => r.id !== recipeId));
+    } catch (err) {
+      console.error("Failed to delete recipe", err);
+    }
+  };
+
   return (
     <>
       <Navbar
         showSearch={pathname === "/my-recipes"}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
+        refreshRecipes={loadMyRecipes}
       />
       <main className="py-10 flex justify-center">
         <div className="w-full max-w-4xl px-4">
@@ -91,6 +103,7 @@ export default function MyRecipesPage() {
                 onToggleFavorite={(id, isFavorited) =>
                   handleToggle(id, isFavorited)
                 }
+                onDeleteRecipe={handleDeleteRecipe}
               />
             ))}
           </div>

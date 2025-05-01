@@ -88,7 +88,12 @@ export default function Navbar({
       )}
       {isAuthenticated && (
         <ListItem disablePadding>
-          <ListItemButton onClick={() => { setShowModal(true); setShowDrawer(false); }}>
+          <ListItemButton
+            onClick={() => {
+              setShowModal(true);
+              setShowDrawer(false);
+            }}
+          >
             <ListItemText primary="Add Recipe" />
           </ListItemButton>
         </ListItem>
@@ -97,12 +102,22 @@ export default function Navbar({
       {isAuthenticated ? (
         <>
           <ListItem disablePadding>
-            <ListItemButton onClick={() => { router.push("/favorites"); setShowDrawer(false); }}>
+            <ListItemButton
+              onClick={() => {
+                router.push("/favorites");
+                setShowDrawer(false);
+              }}
+            >
               <ListItemText primary="My Favorites" />
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
-            <ListItemButton onClick={() => { router.push("/my-recipes"); setShowDrawer(false); }}>
+            <ListItemButton
+              onClick={() => {
+                router.push("/my-recipes");
+                setShowDrawer(false);
+              }}
+            >
               <ListItemText primary="My Recipes" />
             </ListItemButton>
           </ListItem>
@@ -116,12 +131,20 @@ export default function Navbar({
       ) : (
         <>
           <ListItem disablePadding>
-            <ListItemButton component={Link} href="/login" onClick={() => setShowDrawer(false)}>
+            <ListItemButton
+              component={Link}
+              href="/login"
+              onClick={() => setShowDrawer(false)}
+            >
               <ListItemText primary="Log In" />
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
-            <ListItemButton component={Link} href="/signup" onClick={() => setShowDrawer(false)}>
+            <ListItemButton
+              component={Link}
+              href="/signup"
+              onClick={() => setShowDrawer(false)}
+            >
               <ListItemText primary="Sign Up" />
             </ListItemButton>
           </ListItem>
@@ -159,7 +182,10 @@ export default function Navbar({
 
               {isAuthenticated ? (
                 <>
-                  <Button variant="contained" onClick={() => setShowModal(true)}>
+                  <Button
+                    variant="contained"
+                    onClick={() => setShowModal(true)}
+                  >
                     Add Recipe
                   </Button>
                   <IconButton onClick={() => setShowDrawer(true)}>
@@ -196,7 +222,10 @@ export default function Navbar({
       </Drawer>
 
       {showModal && (
-        <AddRecipeModal onClose={handleRecipeCreated} />
+        <AddRecipeModal
+          onClose={() => setShowModal(false)}
+          onRecipeAdded={handleRecipeCreated}
+        />
       )}
 
       {/* animation after submitting a new recipe successfully */}

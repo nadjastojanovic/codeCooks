@@ -36,14 +36,18 @@ export default function AddRecipeModal({ onClose, onRecipeAdded }) {
   const ingredientRefs = useRef([]);
   const stepRefs = useRef([]);
 
-  const isFormValid = () => { // check that all required fields are filled
-    formData.title.trim() &&
-    formData.ingredients.filter(Boolean).length &&
-    formData.steps.filter(Boolean).length &&
-    formData.image_url.trim();
-  }
+  const isFormValid = () => {
+    // check that all required fields are filled
+    return (
+      formData.title.trim() &&
+      formData.ingredients.filter(Boolean).length &&
+      formData.steps.filter(Boolean).length &&
+      formData.image_url.trim()
+    );
+  };
 
-  const handleChange = (e) => { // update form data as they type
+  const handleChange = (e) => {
+    // update form data as they type
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -68,7 +72,8 @@ export default function AddRecipeModal({ onClose, onRecipeAdded }) {
       ingredients: [...prev.ingredients, ""],
     }));
     setTimeout(() => {
-      const lastInput = ingredientRefs.current[ingredientRefs.current.length - 1];
+      const lastInput =
+        ingredientRefs.current[ingredientRefs.current.length - 1];
       if (lastInput) {
         lastInput.focus();
       }
@@ -113,7 +118,8 @@ export default function AddRecipeModal({ onClose, onRecipeAdded }) {
       steps: formData.steps.filter(Boolean),
     };
 
-    try { // post the form data
+    try {
+      // post the form data
       const response = await fetch("/api/recipes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -150,7 +156,9 @@ export default function AddRecipeModal({ onClose, onRecipeAdded }) {
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
             {showAlert && (
-              <Alert severity="warning"> {/* to show if they attempt to submit before filling in all required fields */}
+              <Alert severity="warning">
+                {" "}
+                {/* to show if they attempt to submit before filling in all required fields */}
                 Please fill out all required fields.
               </Alert>
             )}
@@ -172,7 +180,7 @@ export default function AddRecipeModal({ onClose, onRecipeAdded }) {
               fullWidth
             />
             {/* also would be nice to allow them to upload image instead of just URL */}
-            <TextField 
+            <TextField
               name="image_url"
               label="Image URL*"
               value={formData.image_url}
@@ -279,7 +287,7 @@ export default function AddRecipeModal({ onClose, onRecipeAdded }) {
           </Button>
           {/* on submit, animation should appear */}
           <Button onClick={handleSubmit} variant="contained">
-            Submit 
+            Submit
           </Button>
         </DialogActions>
       </Dialog>

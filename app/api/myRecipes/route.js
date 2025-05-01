@@ -15,7 +15,7 @@ export async function GET() {
   }
 
   const text = `
-    SELECT r.id, r.title, r.image_url, ARRAY_AGG(DISTINCT t.name) AS tags,
+    SELECT r.id, r.title, r.image_url, r.author_id, ARRAY_AGG(DISTINCT t.name) AS tags,
       COUNT(DISTINCT f.user_id) AS favorite_count,
       CASE WHEN f2.user_id IS NOT NULL THEN true ELSE false END AS "isFavorited"
     FROM recipes_codecooks r
