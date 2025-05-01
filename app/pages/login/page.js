@@ -1,9 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { motion } from "framer-motion";
+
+import { useRouter } from "next/navigation";
+
+import { motion } from "framer-motion"; // animations (new library)
 
 export default function LoginPage() {
   const router = useRouter();
@@ -19,13 +22,13 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const res = await fetch("/api/auth", {
+      const res = await fetch("/api/auth", { // 1. AUTHENTICATE USER
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
-      if (res.ok) {
+      if (res.ok) { // 2. REROUTE
         router.push("/");
       } else {
         const data = await res.json();
@@ -39,9 +42,9 @@ export default function LoginPage() {
 
   return (
     <div className="flex h-screen">
-      {/* Left side: login form */}
+      {/* left side (log in form) */}
       <div className="w-1/2 flex flex-col justify-center items-center bg-white p-12 relative">
-        {/* Back Button */}
+        {/* back to home button */}
         <motion.button
           initial={{ x: -50, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
@@ -58,9 +61,8 @@ export default function LoginPage() {
             Welcome Back 👋
           </h1>
 
-          {/* ✏️ FORM */}
+          {/* FORM */}
           <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-            {/* Grouped input fields - no huge gaps */}
             <div className="flex flex-col gap-2">
               <div>
                 <label className="block mb-1 text-lg font-medium">
@@ -90,10 +92,9 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Error Message */}
+            {/* display error msg (if auto log in fails for example) */}
             {error && <p className="text-red-500 text-sm">{error}</p>}
 
-            {/* 🔥 Spacing above Log In button */}
             <div className="pt-2">
               <button
                 type="submit"
@@ -106,7 +107,7 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Right side: background image */}
+      {/* right side (just an image) */}
       <div className="w-1/2 h-full">
         <img
           src="https://i.etsystatic.com/5872003/r/il/ae6eff/2042612085/il_fullxfull.2042612085_d1ka.jpg"

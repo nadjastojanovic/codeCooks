@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+
 import { useRouter, usePathname } from "next/navigation";
 
 import Navbar from "../../components/Navbar";
 import RecipeCard from "../../components/RecipeCard";
 import TagFilter from "../../components/TagFilter";
 import Loader from "../../components/Loader";
+
 import { useAuth } from "../../context/authContext";
 
 export default function Home() {
@@ -20,7 +22,7 @@ export default function Home() {
   const pathname = usePathname();
   const router = useRouter();
 
-  const fetchRecipes = async () => {
+  const fetchRecipes = async () => { // GET recipes (based on tag)
     try {
       const tagParam = selectedTag !== "All" ? `?tag=${selectedTag}` : "";
       const response = await fetch(`/api/recipes${tagParam}`);
@@ -34,8 +36,9 @@ export default function Home() {
 
   useEffect(() => {
     fetchRecipes();
-  }, [selectedTag]);
+  }, [selectedTag]); // update recipes in-place when they select a new tag
 
+  // favorite logic
   const toggleFavorite = async (recipeId, isFavorited) => {
     if (!isAuthenticated) {
       alert("Please log in to favorite recipes.");
@@ -79,10 +82,12 @@ export default function Home() {
     }
   };
 
+  // search bar filter
   const displayed = recipes.filter((r) =>
     r.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // loader while fetching recipes
   if (loading) {
     return <Loader />;
   }
@@ -102,6 +107,7 @@ export default function Home() {
             setSelectedTag={setSelectedTag}
           />
 
+          {/* recipe card handles whether the delete button shows */}
           <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-8 mt-8">
             {displayed.map((recipe) => (
               <RecipeCard
@@ -117,7 +123,7 @@ export default function Home() {
 
           <div className="h-8" />
 
-          {/* ✅ MEALDB - Don't remove this section */}
+          {/* TheMealDB (external API) banner at the bottom of recipes */}
           <div
             className="mt-12 cursor-pointer overflow-hidden h-48 rounded-lg bg-cover bg-center"
             style={{

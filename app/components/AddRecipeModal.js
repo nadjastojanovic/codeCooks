@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+
 import {
   Dialog,
   DialogTitle,
@@ -16,12 +17,13 @@ import {
   Alert,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { motion } from "framer-motion";
+import { motion } from "framer-motion"; // animations (new library)
 
+// these are pre-set, would be nice to allow users to add custom ones
 const tag_options = ["Breakfast", "Lunch", "Dinner", "Dessert", "Drinks"];
 
 export default function AddRecipeModal({ onClose, onRecipeAdded }) {
-  const [showAlert, setShowAlert] = useState(false);
+  const [showAlert, setShowAlert] = useState(false); // this is if they leave out any of the required fields in the form
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -34,16 +36,19 @@ export default function AddRecipeModal({ onClose, onRecipeAdded }) {
   const ingredientRefs = useRef([]);
   const stepRefs = useRef([]);
 
-  const isFormValid = () =>
+  const isFormValid = () => { // check that all required fields are filled
     formData.title.trim() &&
     formData.ingredients.filter(Boolean).length &&
     formData.steps.filter(Boolean).length &&
     formData.image_url.trim();
+  }
 
-  const handleChange = (e) => {
+  const handleChange = (e) => { // update form data as they type
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+
+  /* -- ADDING AND REMOVING INGREDIENTS AND STEPS -- */
 
   const handleIngredientChange = (index, value) => {
     const updated = [...formData.ingredients];
@@ -63,9 +68,10 @@ export default function AddRecipeModal({ onClose, onRecipeAdded }) {
       ingredients: [...prev.ingredients, ""],
     }));
     setTimeout(() => {
-      const lastInput =
-        ingredientRefs.current[ingredientRefs.current.length - 1];
-      if (lastInput) lastInput.focus();
+      const lastInput = ingredientRefs.current[ingredientRefs.current.length - 1];
+      if (lastInput) {
+        lastInput.focus();
+      }
     }, 0);
   };
 
@@ -92,9 +98,10 @@ export default function AddRecipeModal({ onClose, onRecipeAdded }) {
     setFormData((prev) => ({ ...prev, steps: updated }));
   };
 
+  // firs tcheck if all required fields are complete
   const handleSubmit = async () => {
     if (!isFormValid()) {
-      setShowAlert(true);
+      setShowAlert(true); // alert !
       return;
     }
 
@@ -106,7 +113,7 @@ export default function AddRecipeModal({ onClose, onRecipeAdded }) {
       steps: formData.steps.filter(Boolean),
     };
 
-    try {
+    try { // post the form data
       const response = await fetch("/api/recipes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -124,6 +131,7 @@ export default function AddRecipeModal({ onClose, onRecipeAdded }) {
     }
   };
 
+  // update selected tags on the fly
   const handleTagToggle = (tag) => {
     setFormData((prev) => ({
       ...prev,
@@ -142,10 +150,11 @@ export default function AddRecipeModal({ onClose, onRecipeAdded }) {
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
             {showAlert && (
-              <Alert severity="warning">
+              <Alert severity="warning"> {/* to show if they attempt to submit before filling in all required fields */}
                 Please fill out all required fields.
               </Alert>
             )}
+            {/* FORM DATA */}
             <TextField
               name="title"
               label="Title*"
@@ -162,7 +171,8 @@ export default function AddRecipeModal({ onClose, onRecipeAdded }) {
               onChange={handleChange}
               fullWidth
             />
-            <TextField
+            {/* also would be nice to allow them to upload image instead of just URL */}
+            <TextField 
               name="image_url"
               label="Image URL*"
               value={formData.image_url}
@@ -170,7 +180,7 @@ export default function AddRecipeModal({ onClose, onRecipeAdded }) {
               fullWidth
             />
 
-            {/* Ingredients */}
+            {/* INGREDIENTS */}
             <Stack spacing={1}>
               <div className="flex justify-between items-center">
                 <h2 className="text-md font-medium">Ingredients*</h2>
@@ -206,7 +216,7 @@ export default function AddRecipeModal({ onClose, onRecipeAdded }) {
               ))}
             </Stack>
 
-            {/* Steps */}
+            {/* STEPS */}
             <Stack spacing={1}>
               <div className="flex justify-between items-center">
                 <h2 className="text-md font-medium">Steps*</h2>
@@ -240,7 +250,7 @@ export default function AddRecipeModal({ onClose, onRecipeAdded }) {
               ))}
             </Stack>
 
-            {/* Tags */}
+            {/* TAGS */}
             <div>
               <div className="text-sm font-medium text-gray-600 mb-1">
                 Select Tags:
@@ -263,11 +273,13 @@ export default function AddRecipeModal({ onClose, onRecipeAdded }) {
           </Stack>
         </DialogContent>
         <DialogActions className="px-6 pb-4">
+          {/* on close, animation should not appear */}
           <Button onClick={onClose} variant="outlined">
             Cancel
           </Button>
+          {/* on submit, animation should appear */}
           <Button onClick={handleSubmit} variant="contained">
-            Submit
+            Submit 
           </Button>
         </DialogActions>
       </Dialog>

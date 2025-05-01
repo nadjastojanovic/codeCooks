@@ -1,18 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { motion } from "framer-motion";
 
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+
+import { motion } from "framer-motion"; // animations (new library)
+
+import { useRouter } from "next/navigation";
+
+// after successful sign up, they should be automatically logged in and rerouted to "/"
 export default function SignupPage() {
-  const router = useRouter();
   const [formData, setFormData] = useState({
     username: "",
     email: "",
     password: "",
   });
   const [error, setError] = useState("");
+
+  const router = useRouter();
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -23,7 +28,7 @@ export default function SignupPage() {
     setError("");
 
     try {
-      const res = await fetch("/api/signup", {
+      const res = await fetch("/api/signup", { // 1. POST NEW USER
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -35,7 +40,7 @@ export default function SignupPage() {
         return;
       }
 
-      const loginRes = await fetch("/api/auth", {
+      const loginRes = await fetch("/api/auth", { // 2. AUTHENTICATE USER
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -44,7 +49,7 @@ export default function SignupPage() {
         }),
       });
 
-      if (loginRes.ok) {
+      if (loginRes.ok) { // 3. REROUTE
         router.push("/");
       } else {
         setError(
@@ -59,7 +64,7 @@ export default function SignupPage() {
 
   return (
     <div className="flex h-screen">
-      {/* Left side */}
+      {/* left side (sign up form) */}
       <div className="w-1/2 flex flex-col justify-center items-center bg-white p-12 relative">
         <motion.button
           initial={{ x: -50, opacity: 0 }}
@@ -77,9 +82,8 @@ export default function SignupPage() {
             Join the party🍴
           </h1>
 
-          {/* ✏️ FORM */}
+          {/* FORM */}
           <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-            {/* Grouped input fields - no big gaps between them */}
             <div className="flex flex-col gap-2">
               <div>
                 <label className="block mb-1 text-lg font-medium">
@@ -121,10 +125,9 @@ export default function SignupPage() {
               </div>
             </div>
 
-            {/* Error Message */}
+            {/* display error msg (if auto log in fails for example) */}
             {error && <p className="text-red-500 text-sm">{error}</p>}
 
-            {/* 🔥 Spacing above Sign Up button */}
             <div className="pt-2">
               <button
                 type="submit"
@@ -137,7 +140,7 @@ export default function SignupPage() {
         </div>
       </div>
 
-      {/* Right side */}
+      {/* right side (just an image) */}
       <div className="w-1/2 h-full">
         <img
           src="https://cdn.shopify.com/s/files/1/0558/6413/1764/files/Pasta_Illustration_9_1024x1024.jpg?v=1706173460"

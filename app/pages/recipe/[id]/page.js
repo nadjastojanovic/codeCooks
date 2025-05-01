@@ -1,20 +1,23 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { useParams, useRouter } from "next/navigation";
+
 import { Button, IconButton, Stack } from "@mui/material";
-import { PhotoProvider, PhotoView } from "react-photo-view";
+import FileUploadIcon from "@mui/icons-material/FileUpload";
+
+import { useParams, useRouter } from "next/navigation";
+
+import html2canvas from "html2canvas"; // export to pdf (new library)
+import jsPDF from "jspdf";
+
+import { PhotoProvider, PhotoView } from "react-photo-view"; // photo gallery (new library)
+
 import CommentItem from "../../../components/CommentItem";
 import Navbar from "../../../components/Navbar";
 import Loader from "../../../components/Loader";
 import { useAuth } from "../../../context/authContext";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
-
-import FileUploadIcon from "@mui/icons-material/FileUpload";
 
 export default function RecipePage() {
   const { id } = useParams();
-  const router = useRouter();
   const { user, isAuthenticated } = useAuth();
 
   const [recipe, setRecipe] = useState(null);
@@ -24,15 +27,18 @@ export default function RecipePage() {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
 
+  // export to pdf
   const recipeRef = useRef(null);
   const exportRef = useRef(null);
 
-  const fetchComments = async () => {
+  const router = useRouter();
+
+  const fetchComments = async () => { // GET comments
     const res = await fetch(`/api/comments?recipeId=${id}`);
     setComments(await res.json());
   };
 
-  const fetchRecipe = async () => {
+  const fetchRecipe = async () => { // GET recipe
     const res = await fetch(`/api/recipes/${id}`);
     if (!res.ok) {
       console.error("Failed to load recipe");
@@ -49,14 +55,14 @@ export default function RecipePage() {
     fetchComments();
   }, [id]);
 
-  const handleDeleteRecipe = async () => {
+  const handleDeleteRecipe = async () => { // DELETE recipe
     if (!confirm("Are you sure you want to delete this recipe?")) return;
     const res = await fetch(`/api/recipes/${id}`, { method: "DELETE" });
     if (res.ok) router.push("/");
     else console.error("Failed to delete recipe");
   };
 
-  const postComment = async () => {
+  const postComment = async () => { // POST new comment
     if (!newComment.trim()) return;
     const res = await fetch("/api/comments", {
       method: "POST",
@@ -67,12 +73,12 @@ export default function RecipePage() {
     setComments([c, ...comments]);
     setNewComment("");
   };
-
-  const removeComment = (cid) => {
+ 
+  const removeComment = (cid) => { // update comments in place
     setComments(comments.filter((c) => c.id !== cid));
   };
 
-  const toggleFavorite = async () => {
+  const toggleFavorite = async () => { // post favorite and handle state of favorite button
     try {
       await fetch("/api/favorites", {
         method: "POST",
@@ -85,14 +91,14 @@ export default function RecipePage() {
     }
   };
 
-  const handleExport = async () => {
+  const handleExport = async () => { // pdf export
     if (!exportRef.current) return;
     const canvas = await html2canvas(exportRef.current, {
       backgroundColor: "#ffffff",
       useCORS: true,
     });
 
-    const imgData = canvas.toDataURL("image/png");
+    const imgData = canvas.toDataURL("image/png"); // convert page to png then to pdf
 
     const pdf = new jsPDF({
       orientation: "portrait",
@@ -103,6 +109,8 @@ export default function RecipePage() {
     pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
     pdf.save(`${recipe.title}.pdf`);
   };
+
+  // display loading animation while fetching recipes and comments
   if (loading) {
     return <Loader />;
   }
@@ -114,17 +122,17 @@ export default function RecipePage() {
         <main className="w-1/2 mx-auto" ref={recipeRef}>
           <div className="h-8" />
 
-          {/* Title and Buttons */}
+          {/* recipe title */}
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-extrabold">{recipe.title}</h1>
 
             <Stack direction="row" spacing={1}>
-              {/* Export */}
+              {/* export to pdf button */}
               <IconButton onClick={handleExport} color="primary">
                 <FileUploadIcon />
               </IconButton>
 
-              {/* Favorite */}
+              {/* favorite button */}
               {isAuthenticated && (
                 <Button
                   variant="outlined"
@@ -135,7 +143,7 @@ export default function RecipePage() {
                 </Button>
               )}
 
-              {/* Delete */}
+              {/* delete button */}
               {isAuthenticated &&
                 (user?.id === recipe.author_id || user?.is_admin) && (
                   <Button
@@ -149,7 +157,7 @@ export default function RecipePage() {
             </Stack>
           </div>
 
-          {/* Author and Date */}
+          {/* recipe author and creation date */}
           <div className="p-4 rounded mb-8 flex justify-between">
             <span className="font-medium text-gray-700">
               By {recipe.author_name}
@@ -163,14 +171,14 @@ export default function RecipePage() {
             </span>
           </div>
 
-          {/* Description */}
+          {/* description */}
           {recipe.description && (
             <p className="text-lg text-gray-900">{recipe.description}</p>
           )}
 
           <div className="h-2" />
 
-          {/* Image */}
+          {/* image */}
           <PhotoProvider>
             <div className="w-full h-[400px] overflow-hidden rounded-lg">
               <PhotoView src={recipe.image_url}>
@@ -185,7 +193,7 @@ export default function RecipePage() {
 
           <div className="h-2" />
 
-          {/* Ingredients */}
+          {/* ingredients */}
           <section className="space-y-4">
             <h2 className="text-xl font-semibold">Ingredients</h2>
             <ul className="list-disc list-inside text-lg text-gray-900 space-y-2">
@@ -197,7 +205,7 @@ export default function RecipePage() {
 
           <div className="h-2" />
 
-          {/* Steps */}
+          {/* steps */}
           <section className="space-y-4">
             <h2 className="text-xl font-semibold">Steps</h2>
             <ol className="list-decimal list-inside text-lg text-gray-900 space-y-3">
@@ -210,12 +218,14 @@ export default function RecipePage() {
 
           <div className="h-8" />
 
-          {/* Comments */}
+          {/* COMMENTS */}
           <div className="w-full mx-auto py-8">
+            {/* can be seen by unauth. users too */}
             <h2 className="text-2xl font-semibold mb-4">Comments</h2>
             {comments.map((c) => (
               <CommentItem key={c.id} {...c} onDeleted={removeComment} />
             ))}
+            {/* but only auth. users can add/delete/like comments */}
             {isAuthenticated ? (
               <div className="mb-6">
                 <textarea
@@ -238,7 +248,7 @@ export default function RecipePage() {
         </main>
       </div>
 
-      {/* Hidden div for export */}
+      {/* hidden div used for pdf export */}
       <div
         ref={exportRef}
         style={{ position: "absolute", top: "-9999px", left: "-9999px" }}

@@ -1,22 +1,30 @@
 "use client";
+
 import { useState, useEffect } from "react";
+
 import StarIcon from "@mui/icons-material/Star";
 import { Button } from "@mui/material";
 
 import Navbar from "../../components/Navbar";
 import Loader from "../../components/Loader";
 
+// created a separate page for the random-recipe bc the data
+// returned from TheMealDB is in a different format and I'd
+// have to change the recipe/[id]/page.js too much
 export default function RandomRecipePage() {
   const [meal, setMeal] = useState(null);
 
-  useEffect(() => {
+  useEffect(() => { // request to TheMealDB (external API)
     fetch("../../api/external/random")
       .then((r) => r.json())
       .then((data) => setMeal(data))
       .catch(console.error);
   }, []);
 
-  if (!meal) return <Loader />;
+  // loader while recipe is fetching
+  if (!meal) {
+    return <Loader />;
+  }
 
   return (
     <>
@@ -28,6 +36,7 @@ export default function RandomRecipePage() {
             <h1 className="text-3xl font-extrabold">
               {meal.title}
             </h1>
+            {/* external recipe label for the users to know */}
             <Button
               startIcon={<StarIcon />}
               variant="contained"
@@ -75,3 +84,8 @@ export default function RandomRecipePage() {
     </>
   );
 }
+
+// not storing this recipe in the database or anything, so not showing comments or allowing them
+// to favorite it
+
+// maybe if we make it a daily thing, then we could store in the database for a day and allow comments etc.
