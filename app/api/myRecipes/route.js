@@ -8,14 +8,15 @@ export async function GET() {
   const token = cookieStore.get("token")?.value;
   const user = verifyToken(token);
 
-  if (!user) {
+  if (!user) { // should not even have access to this route if unauth.
     return new Response(JSON.stringify({ error: "Not authenticated" }), {
       status: 401,
     });
   }
 
   const text = `
-    SELECT r.id, r.title, r.image_url, r.author_id, ARRAY_AGG(DISTINCT t.name) AS tags,
+    SELECT r.id, r.title, r.image_url, r.author_id,
+      ARRAY_AGG(DISTINCT t.name) AS tags,
       COUNT(DISTINCT f.user_id) AS favorite_count,
       CASE WHEN f2.user_id IS NOT NULL THEN true ELSE false END AS "isFavorited"
     FROM recipes_codecooks r
