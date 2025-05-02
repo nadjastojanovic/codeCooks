@@ -8,7 +8,7 @@ export async function POST(req) {
   const token = cookieStore.get("token")?.value;
   const user = verifyToken(token);
 
-  if (!user) {
+  if (!user) { // should not even have access to this route if unauth.
     return new Response(JSON.stringify({ error: "Not authenticated" }), {
       status: 401,
     });
@@ -16,49 +16,42 @@ export async function POST(req) {
 
   const { recipeId, isFavorited } = await req.json();
 
-  if (!isFavorited) {
-    await query(
-      `INSERT INTO favorites_codecooks (user_id, recipe_id, favorited_at)
-       VALUES ($1, $2, NOW()) ON CONFLICT DO NOTHING`,
-      [user.id, recipeId]
-    );
-  } else {
-    await query(
-      `DELETE FROM favorites_codecooks WHERE user_id = $1 AND recipe_id = $2`,
-      [user.id, recipeId]
-    );
-  }
+  const qs = isFavorited
+    ? `DELETE FROM favorites_codecooks WHERE user_id = $1 AND recipe_id = $2`
+    : `INSERT INTO favorites_codecooks (user_id, recipe_id, favorited_at)
+        VALUES ($1, $2, NOW())`;
+    
+  await query(qs, [user.id, recipeId]);
 
   return new Response(JSON.stringify({ success: true }), {
     headers: { "Content-Type": "application/json" },
   });
 }
 
+// get a user's favorites recipes
 export async function GET() {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
   const user = verifyToken(token);
 
-  if (!user) {
+  if (!user) { // should not even have access to this route if unauth.
     return new Response(JSON.stringify({ error: "Not authenticated" }), {
       status: 401,
     });
   }
 
-  const res = await query(
-    `
-      SELECT r.id, r.title, r.image_url, ARRAY_AGG(DISTINCT t.name) AS tags,
-        COUNT(DISTINCT f2.user_id) AS favorite_count,
-        TRUE AS "isFavorited"
-      FROM recipes_codecooks r
-      JOIN favorites_codecooks f1 ON r.id = f1.recipe_id AND f1.user_id = $1
-      LEFT JOIN favorites_codecooks f2 ON r.id = f2.recipe_id
-      LEFT JOIN recipe_tags_codecooks rt ON r.id = rt.recipe_id
-      LEFT JOIN tags_codecooks t ON rt.tag_id = t.id
-      GROUP BY r.id, r.title, r.image_url
-    `,
-    [user.id]
-  );
+  const res = await query(`
+    SELECT r.id, r.title, r.image_url,
+      ARRAY_AGG(DISTINCT t.name) AS tags,
+      COUNT(DISTINCT f2.user_id) AS favorite_count,
+      TRUE AS "isFavorited"
+    FROM recipes_codecooks r
+    JOIN favorites_codecooks f1 ON r.id = f1.recipe_id AND f1.user_id = $1
+    LEFT JOIN favorites_codecooks f2 ON r.id = f2.recipe_id
+    LEFT JOIN recipe_tags_codecooks rt ON r.id = rt.recipe_id
+    LEFT JOIN tags_codecooks t ON rt.tag_id = t.id
+    GROUP BY r.id, r.title, r.image_url
+  `, [user.id]);
 
   return new Response(JSON.stringify(res.rows), {
     headers: { "Content-Type": "application/json" },

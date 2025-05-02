@@ -19,8 +19,6 @@ export async function GET(request) {
     const tag = searchParams.get("tag");
     const isFiltered = tag && tag !== "All"; // did they filter by tag or not
 
-    
-
     const selectIsFavorited = user
       ? `CASE WHEN f1.user_id IS NOT NULL THEN true ELSE false END AS "isFavorited",`
       : "";
@@ -77,10 +75,8 @@ export async function POST(request) {
     
     const qs1 = `
       INSERT INTO recipes_codecooks (author_id, title, description, ingredients, steps, image_url, favorite_count, created_at)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id
+      VALUES ($1, $2, $3, $4, $5, $6, $7, NOW()) RETURNING id
     `;
-
-    const now = new Date();
 
     const values = [
       user.id,
@@ -90,7 +86,7 @@ export async function POST(request) {
       JSON.stringify(body.steps),
       body.image_url,
       0, // favorite count = 0 at creation
-      now.toISOString(), // creation date
+      // creation date (moved into the query now)
     ];
 
     const recipeRes = await query(qs1, values);
