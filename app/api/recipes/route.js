@@ -17,57 +17,41 @@ export async function GET(request) {
 
     const { searchParams } = new URL(request.url);
     const tag = searchParams.get("tag");
+    const isFiltered = tag && tag !== "All"; // did they filter by tag or not
 
-    let qs;
-    let values = [];
+    
 
-    const joinFavorites = user !== null;
-    const selectIsFavorited = joinFavorites
+    const selectIsFavorited = user
       ? `CASE WHEN f1.user_id IS NOT NULL THEN true ELSE false END AS "isFavorited",`
       : "";
-    const joinFavoritesClause = joinFavorites
+    const joinFavorites = user
       ? `LEFT JOIN favorites_codecooks f1 ON r.id = f1.recipe_id AND f1.user_id = $1`
       : "";
 
-    if (!tag || tag === "All") { // no tag filter
-      qs = `
-        SELECT r.id, r.title, r.image_url, r.author_id, ARRAY_AGG(DISTINCT t.name) AS tags, ${selectIsFavorited}
+    const values = user ? [user.id] : []; // unauth, no need to pass values
+    if (isFiltered) values.push(tag); // if used tag flter, need to include that in values
+
+    const whereClause = isFiltered // if used tag filter, filter according to that by using the recipe_tags table
+    ? `WHERE r.id IN (
+        SELECT rt2.recipe_id
+        FROM recipe_tags_codecooks rt2
+        JOIN tags_codecooks t2 ON rt2.tag_id = t2.id
+        WHERE t2.name = $${values.length})`
+    : "";
+
+    // put everything together :')
+    const qs = `
+      SELECT r.id, r.title, r.image_url, r.author_id,
+        ARRAY_AGG(DISTINCT t.name) AS tags,
+        ${selectIsFavorited}
         COUNT(DISTINCT f2.user_id) AS favorite_count
-        FROM recipes_codecooks r
-        LEFT JOIN recipe_tags_codecooks rt ON r.id = rt.recipe_id
-        LEFT JOIN tags_codecooks t ON rt.tag_id = t.id
-        ${joinFavoritesClause}
-        LEFT JOIN favorites_codecooks f2 ON r.id = f2.recipe_id
-        GROUP BY r.id, r.title, r.image_url, r.author_id${
-          joinFavorites ? ", f1.user_id" : ""
-        }
-      `;
-      if (user) values.push(user.id);
-    } else { // tag filter
-      qs = `
-        SELECT r.id, r.title, r.image_url, r.author_id, ARRAY_AGG(DISTINCT t.name) AS tags, ${selectIsFavorited}
-        COUNT(DISTINCT f2.user_id) AS favorite_count
-        FROM recipes_codecooks r
-        LEFT JOIN recipe_tags_codecooks rt ON r.id = rt.recipe_id
-        LEFT JOIN tags_codecooks t ON rt.tag_id = t.id
-        ${joinFavoritesClause}
-        LEFT JOIN favorites_codecooks f2 ON r.id = f2.recipe_id
-        WHERE r.id IN (
-          SELECT rt2.recipe_id
-          FROM recipe_tags_codecooks rt2
-          JOIN tags_codecooks t2 ON rt2.tag_id = t2.id
-          WHERE t2.name = $${user ? 2 : 1}
-        )
-        GROUP BY r.id, r.title, r.image_url, r.author_id${
-          joinFavorites ? ", f1.user_id" : ""
-        }
-      `;
-      if (user) {
-        values.push(user.id, tag);
-      } else {
-        values.push(tag);
-      }
-    }
+      FROM recipes_codecooks r
+      LEFT JOIN recipe_tags_codecooks rt ON r.id = rt.recipe_id
+      LEFT JOIN tags_codecooks t ON rt.tag_id = t.id
+      ${joinFavorites}
+      LEFT JOIN favorites_codecooks f2 ON r.id = f2.recipe_id
+      ${whereClause}
+      GROUP BY r.id, r.title, r.image_url, r.author_id${joinFavorites ? ", f1.user_id" : ""}`;
 
     const res = await query(qs, values);
 
@@ -90,12 +74,13 @@ export async function POST(request) {
     const user = verifyToken(token);
 
     const body = await request.json();
-    const now = new Date();
-
+    
     const qs1 = `
       INSERT INTO recipes_codecooks (author_id, title, description, ingredients, steps, image_url, favorite_count, created_at)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id
     `;
+
+    const now = new Date();
 
     const values = [
       user.id,
@@ -108,21 +93,19 @@ export async function POST(request) {
       now.toISOString(), // creation date
     ];
 
-    const res = await query(qs1, values);
-    const recipeId = res.rows[0].id;
+    const recipeRes = await query(qs1, values);
+    const recipeId = recipeRes.rows[0].id;
 
-    // when recipe is added, tags should be inserted into tags table
+    // when recipe is added, tags should be inserted into recipe_tags table
     for (const tag of body.tags) {
-      const tagQuery = `SELECT id FROM tags_codecooks WHERE name = $1`;
-      const tagRes = await query(tagQuery, [tag]);
-
-      if (tagRes.rows.length > 0) {
-        const tagId = tagRes.rows[0].id;
-        await query(
-          `INSERT INTO recipe_tags_codecooks (recipe_id, tag_id) VALUES ($1, $2)`,
-          [recipeId, tagId]
-        );
-      }
+      // need to get tag id
+      const tagRes = await query(`SELECT id FROM tags_codecooks WHERE name = $1`, [tag]);
+      const tagId = tagRes.rows[0].id;
+      // in order to insert into recipe_tags table
+      await query(
+        `INSERT INTO recipe_tags_codecooks (recipe_id, tag_id) VALUES ($1, $2)`,
+        [recipeId, tagId]
+      );
     }
 
     return new Response(JSON.stringify({ message: "Recipe added", recipeId }), {
