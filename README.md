@@ -81,7 +81,7 @@ To get a local copy up and running follow these steps.
 ### 1. Clone the repo
 
 ```
-git clone https://github.com/TrevorAL/finalproject-nextjs-TrevorAL.git
+git clone https://github.com/nadjastojanovic/codeCooks.git
 ```
 
 ### 2. Dependencies
@@ -89,7 +89,7 @@ git clone https://github.com/TrevorAL/finalproject-nextjs-TrevorAL.git
 You must have node.js running on your machine.
 
 ```
-cd finalproject-nextjs-TrevorAL
+cd codeCooks
 npm install
 ```
 
@@ -123,14 +123,14 @@ Visit <a href="http://localhost:3000/" target="_">http://localhost:3000</a> in y
 <!-- CONTRIBUTING -->
 ### Contributors:
 
-<a href="https://github.com/TrevorAL/finalproject-nextjs-TrevorAL/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=TrevorAL/finalproject-nextjs-TrevorAL" />
+<a href="https://github.com/nadjastojanovic/codeCooks/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=nadjastojanovic/codecooks" />
 </a>
 
-Nada Stojanovic - nas225@lehigh.edu <br/>
-Trevor Lachman - tal225@lehigh.edu
+Nada Stojanovic - [nadjastojanovic](https://github.com/nadjastojanovic) - nas225@lehigh.edu <br/>
+Trevor Lachman - [TrevorAL](https://github.com/TrevorAL) - tal225@lehigh.edu
 
-Project Link: [https://github.com/TrevorAL/finalproject-nextjs-TrevorAL](https://github.com/TrevorAL/finalproject-nextjs-TrevorAL)
+Project Link: [https://github.com/nadjastojanovic/codeCooks](https://github.com/nadjastojanovic/codeCooks)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
